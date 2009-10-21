@@ -31,42 +31,43 @@ post '/update' do
   content_type :json
   
   {
-    latest_version : {
-      number: '0.2',
-      link:   'seesu.wgt'
+    :latest_version => {
+      :number   => '0.2',
+      :link     => 'seesu.wgt'
     }, 
     
-    inviters: {
-      yodapunk : {
-        count: 0,
-        link : "http://vk.com/reg....",
-        select: true
+    :inviters => {
+    
+      :yodapunk => {
+        :count  => 0,
+        :link   => "http://vk.com/reg....",
+        :select => true
       },
       
-      kossnocorp: {
-        count: 12,
-        link : 'http://vk.com/reg....',
-        select: false
+      :kossnocorp => {
+        :count  => 12,
+        :link   => 'http://vk.com/reg....',
+        :select => false
       }, 
       
-      porqz: {
-        count: 0,
-        link : "http://vk.com/reg....",
-        select: false
+      :porqz => {
+        :count  => 0,
+        :link   => "http://vk.com/reg....",
+        :select => false
       },
       
-      elv1s : {
-        count: 0,
-        link : "http://vk.com/reg....",
-        select: false
+      :elv1s => {
+        :count  => 0,
+        :link   => "http://vk.com/reg....",
+        :select => false
       }    
     },
     
-    promo: {
-      text: "blabla",
-      lang: "en",
-      number: 22,
-      until: "2009.10.25"
+    :promo => {
+      :text     => "blabla",
+      :lang     => "en",
+      :number   => 22,
+      :until    => "2009.10.25"
     }
   }.to_json
 end
