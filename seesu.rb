@@ -15,18 +15,31 @@ DataMapper.setup :default, ENV['DATABASE_URL'] || 'sqlite3://my.db'
 class UsageInfo
   include DataMapper::Resource
 
+  property :id,          Integer, :serial => true
   property :hash,        String
   property :version,     String
   property :when,        DateTime
-  property :demention_x, Integer
-  property :demention_y, Integer
+  property :demension_x, Integer
+  property :demension_y, Integer
 end
+
+DataMapper.auto_migrate!
 
 get '/' do
   "Hi, I'm Seesu server. Nice to meet you!"
 end
 
 post '/update' do
+
+  info = UsageInfo.new (
+    :hash => params[:hash],
+    :version => params[:version],
+    :when => Time.now,
+    :demension_x => params[:demension_x],
+    :demension_y => params[:demension_y]
+  )
+  
+  info.save
 
   content_type :json
   
