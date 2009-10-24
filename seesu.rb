@@ -42,6 +42,33 @@ post '/update' do
   )
   
   info.save
+  
+  inviters = {
+
+    :yodapunk => {
+      :count  => 0,
+      :link   => 'http://vk.com/reg198193',
+      :select => true
+    },
+    
+    :kossnocorp => {
+      :count  => 0,
+      :link   => 'http://vk.com/reg37829378',
+      :select => true
+    }, 
+    
+    :porqz => {
+      :count  => 0,
+      :link   => 'http://vk.com/reg668467',
+      :select => true
+    },
+    
+    :elv1s => {
+      :count  => 0,
+      :link   => 'http://vk.com/reg1114384',
+      :select => true
+    }    
+  }
 
   content_type :json
   
@@ -51,32 +78,7 @@ post '/update' do
       :link     => '#'
     }, 
     
-    :inviters => {
-    
-      :yodapunk => {
-        :count  => 0,
-        :link   => 'http://vk.com/reg198193',
-        :select => true
-      },
-      
-      :kossnocorp => {
-        :count  => 0,
-        :link   => 'http://vk.com/reg37829378',
-        :select => true
-      }, 
-      
-      :porqz => {
-        :count  => 0,
-        :link   => 'http://vk.com/reg668467',
-        :select => true
-      },
-      
-      :elv1s => {
-        :count  => 0,
-        :link   => 'http://vk.com/reg1114384',
-        :select => true
-      }    
-    },
+    :vk_referer => inviters[:yodapunk],
     
     :promo => {
       :text     => '',
