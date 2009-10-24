@@ -90,5 +90,18 @@ post '/update' do
 end
 
 get '/log' do
-  UsageInfo.all.inspect
+  log_html = '<table><tr><td>hash</td><td>version</td><td>width</td>' +
+             '<td>heigth</td><td>when</td></tr>'
+
+  UsageInfo.all.each do |usage_info|
+    
+    log_html += 
+      "<tr><td>#{usage_info.hash}</td><td>#{usage_info.version}</td>"+
+      "<td>#{usage_info.demension_x}</td><td>#{usage_info.demension_y}</td>" +
+      "<td>#{usage_info.when}</td></tr>"
+  
+  end
+  
+  log_html += '</table>'
+  log_html
 end
