@@ -37,9 +37,11 @@ class DownloadCount
   property :id,          Integer, :serial => true
   property :agent,       Text
   property :accept,      Text
-  property :http_referer Text
+  property :http_referer, Text
   property :ip,          String
   property :when,        DateTime
+  
+  auto_upgrade!
 end
 
 DataMapper.auto_migrate!
@@ -162,5 +164,5 @@ get '/downloads/seesu.wgt' do
   
   counter.save
   
-  File.open("#{File.dirname(__FILE__)}/seesu.wgt", "rb").read
+  File.open("#{File.dirname(__FILE__)}/seesu.wgt", 'rb').read
 end
