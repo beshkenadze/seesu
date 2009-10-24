@@ -8,7 +8,8 @@ set :app_file, __FILE__
 set :root, File.dirname(__FILE__)
 set :views, 'views'
 
-mime :json, 'appliaction/json'
+mime :json,   'appliaction/json'
+mime :widget, 'application/x-opera-widgets'
 
 DataMapper.setup :default, ENV['DATABASE_URL'] || 'sqlite3://my.db'
 
@@ -27,6 +28,18 @@ class UsageInfo
   property :demension_y, Integer  
   
   auto_upgrade!
+end
+
+
+class DownloadCount
+  include DataMapper::Resource
+  
+  property :id,          Integer, :serial => true
+  property :agent,       Text
+  property :accept,      Text
+  property :http_referer Text
+  property :ip,          String
+  property :when,        DateTime
 end
 
 DataMapper.auto_migrate!
@@ -67,7 +80,7 @@ post '/update' do
   
   referer = :yodapunk
   
-  info = UsageInfo.new (
+  info = UsageInfo.new(
     :hash => params[:hash],
     :version => params[:version],
 
@@ -134,4 +147,20 @@ end
 
 get '/debug' do
   @env.inspect
+end
+
+get '/downloads/seesu.wgt' do
+  content_type :widget
+  
+  counter = DownloadCount.new(
+    :agent => @env['HTTP_USER_AGENT'],
+    :accept => @env['HTTP_ACCEPT_LANGUAGE'],    
+    :ip => @env['REMOTE_ADDR'],
+    :http_referer => @env['HTTP_REFERER'],
+    :when => Time.now  
+  )
+  
+  counter.save
+  
+  File.open("#{File.dirname(__FILE__)}/seesu.wgt", "rb").read
 end
