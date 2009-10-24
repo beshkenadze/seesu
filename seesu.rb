@@ -70,9 +70,9 @@ post '/update' do
     :hash => params[:hash],
     :version => params[:version],
 
-    :agent => user_agent,
+    :agent => @env['HTTP_USER_AGENT'],
     :referer => referer.to_s,
-    :accept => accept,
+    :accept => @env['HTTP_ACCEPT_LANGUAGE'],
     
     :ip => @env['REMOTE_ADDR'],
     
