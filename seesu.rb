@@ -130,3 +130,7 @@ get '/log' do
   log_html += '</table>'
   log_html
 end
+
+get '/debug' do
+  @env.inspect
+end
