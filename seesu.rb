@@ -18,9 +18,9 @@ class UsageInfo
   property :id,          Integer, :serial => true
   property :hash,        String
   property :version,     String
-  property :agent,       String
+  property :agent,       Text
   property :referer,     String
-  property :accept,      String
+  property :accept,      Text
   property :ip,          String
   property :when,        DateTime
   property :demension_x, Integer
