@@ -20,7 +20,9 @@ class UsageInfo
   property :version,     String
   property :when,        DateTime
   property :demension_x, Integer
-  property :demension_y, Integer
+  property :demension_y, Integer  
+  
+  auto_upgrade!
 end
 
 DataMapper.auto_migrate!
