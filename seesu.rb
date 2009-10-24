@@ -21,6 +21,7 @@ class UsageInfo
   property :agent,       String
   property :referer,     String
   property :accept,      String
+  property :ip,          String
   property :when,        DateTime
   property :demension_x, Integer
   property :demension_y, Integer  
@@ -73,6 +74,8 @@ post '/update' do
     :referer => referer.to_s,
     :accept => accept,
     
+    :ip => @env['REMOTE_ADDR'],
+    
     :when => Time.now,
     :demension_x => params[:demension_x],
     :demension_y => params[:demension_y]
@@ -100,14 +103,26 @@ post '/update' do
 end
 
 get '/log' do
-  log_html = '<table><tr><td>hash</td><td>version</td><td>width</td>' +
-             '<td>heigth</td><td>when</td></tr>'
+  log_html = '<table><tr>' +
+             '<td>hash</td>' +
+             '<td>version</td>' +
+             '<td>width</td>' +
+             '<td>heigth</td>' +
+             
+             '<td>agent</td>' +
+             '<td>referer</td>' +
+             '<td>accept</td>' +
+             '<td>ip</td>' +
+             
+             '<td>when</td></tr>'
 
   UsageInfo.all.each do |usage_info|
     
     log_html += 
       "<tr><td>#{usage_info.hash}</td><td>#{usage_info.version}</td>"+
       "<td>#{usage_info.demension_x}</td><td>#{usage_info.demension_y}</td>" +
+      "<td>#{usage_info.agent}</td><td>#{usage_info.referer}</td>" +
+      "<td>#{usage_info.accept}</td><td>#{usage_info.ip}</td>" +
       "<td>#{usage_info.when}</td></tr>"
   
   end
