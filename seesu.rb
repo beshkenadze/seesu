@@ -18,6 +18,9 @@ class UsageInfo
   property :id,          Integer, :serial => true
   property :hash,        String
   property :version,     String
+  property :agent,       String
+  property :referer,     String
+  property :accept,      String
   property :when,        DateTime
   property :demension_x, Integer
   property :demension_y, Integer  
@@ -32,17 +35,7 @@ get '/' do
 end
 
 post '/update' do
-
-  info = UsageInfo.new (
-    :hash => params[:hash],
-    :version => params[:version],
-    :when => Time.now,
-    :demension_x => params[:demension_x],
-    :demension_y => params[:demension_y]
-  )
-  
-  info.save
-  
+ 
   inviters = {
 
     :yodapunk => {
@@ -69,6 +62,23 @@ post '/update' do
       :select => true
     }    
   }
+  
+  referer = :yodapunk
+  
+  info = UsageInfo.new (
+    :hash => params[:hash],
+    :version => params[:version],
+
+    :agent => user_agent,
+    :referer => referer.to_s,
+    :accept => accept,
+    
+    :when => Time.now,
+    :demension_x => params[:demension_x],
+    :demension_y => params[:demension_y]
+  )
+  
+  info.save
 
   content_type :json
   
@@ -78,7 +88,7 @@ post '/update' do
       :link     => '#'
     }, 
     
-    :vk_referer => inviters[:yodapunk][:link],
+    :vk_referer => inviters[referer][:link],
     
     :promo => {
       :text     => '',
