@@ -88,3 +88,7 @@ post '/update' do
     }
   }.to_json
 end
+
+get '/log' do
+  UsageInfo.all.inspect
+end
