@@ -45,42 +45,42 @@ post '/update' do
   
   {
     :latest_version => {
-      :number   => '0.2',
-      :link     => 'seesu.wgt'
+      :number   => '0.1',
+      :link     => '#'
     }, 
     
     :inviters => {
     
       :yodapunk => {
         :count  => 0,
-        :link   => "http://vk.com/reg....",
+        :link   => 'http://vk.com/reg198193',
         :select => true
       },
       
       :kossnocorp => {
-        :count  => 12,
-        :link   => 'http://vk.com/reg....',
-        :select => false
+        :count  => 0,
+        :link   => 'http://vk.com/reg37829378',
+        :select => true
       }, 
       
       :porqz => {
         :count  => 0,
-        :link   => "http://vk.com/reg....",
-        :select => false
+        :link   => 'http://vk.com/reg668467',
+        :select => true
       },
       
       :elv1s => {
         :count  => 0,
-        :link   => "http://vk.com/reg....",
-        :select => false
+        :link   => 'http://vk.com/reg1114384',
+        :select => true
       }    
     },
     
     :promo => {
-      :text     => "blabla",
-      :lang     => "en",
-      :number   => 22,
-      :until    => "2009.10.25"
+      :text     => '',
+      :lang     => '',
+      :number   => 0,
+      :until    => Time.now
     }
   }.to_json
 end
