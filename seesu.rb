@@ -78,7 +78,7 @@ post '/update' do
       :link     => '#'
     }, 
     
-    :vk_referer => inviters[:yodapunk],
+    :vk_referer => inviters[:yodapunk][:link],
     
     :promo => {
       :text     => '',
