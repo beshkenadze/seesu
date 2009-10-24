@@ -25,7 +25,7 @@ class UsageInfo
   auto_upgrade!
 end
 
-DataMapper.auto_migrate!
+DataMapper.auto_upgrade!
 
 get '/' do
   "Hi, I'm Seesu server. Nice to meet you!"
