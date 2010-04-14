@@ -12,7 +12,7 @@ var vk_login = function(login,pass) {
 		'pass': pass
 	  },
 	  error: function(){
-		log("can't login");
+		log('войти не удалось');
 	  },
 	  success: function(r){
 		var vk_id,vk_error;
