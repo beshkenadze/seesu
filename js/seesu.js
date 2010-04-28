@@ -82,6 +82,7 @@ seesu =  {
 			if (typeof seesu.delayed_search.start_for_mp3provider == 'function'){
 				seesu.delayed_search.start_for_mp3provider();
 			}
+			log('swed to vk')
 		},
 		"switch_to_vk_api": function(){
 			seesu.delayed_search.use = seesu.delayed_search.vk_api;
