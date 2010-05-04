@@ -17,10 +17,10 @@ var vk_api = function(viewer_id, s, api_id, test_mode, cache){
 }
 
 vk_api.prototype = {
-	'use': function(method, params, callback, error, nocache, after_ajax){
+	'use': function(method, params, callback, error, nocache, after_ajax, query){
 	
 		if (method) {
-			var use_cache = (this.use_cache && !nocache)
+			var use_cache = (this.use_cache && !nocache);
 
 			var _this = this;
 			var pv_signature_list = [], // array of <param>+<value>
@@ -53,7 +53,9 @@ vk_api.prototype = {
 			
 			if (use_cache){
 				var cache_used = cache_ajax.get('vk_api', params_full.sig, callback)
-				if (cache_used) {return true;}
+				if (cache_used) {
+					return true;
+				}
 			}
 
 			if (seesu.delayed_search.waiting_for_mp3provider){
@@ -79,7 +81,7 @@ vk_api.prototype = {
 				  }
 				});
 				if (after_ajax) {after_ajax();}
-			});
+			}, false);
 			
 			return true;
 			
@@ -116,7 +118,7 @@ vk_api.prototype = {
 			} else{
 				if (error) {error()}
 			}
-		}, error, nocache, after_ajax);
+		}, error, nocache, after_ajax, query);
 		return used_successful;
 	}
 }
