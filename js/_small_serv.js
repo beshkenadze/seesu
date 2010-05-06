@@ -38,7 +38,9 @@ if (typeof console != 'object'){
 
 
 
-
+window.mslog = function(text){
+	msn.innerHTML += ('<br/>' + text)
+}
 
 
 if ((typeof widget != 'object') || !widget.preferenceForKey){
@@ -55,6 +57,7 @@ if ((typeof widget != 'object') || !widget.preferenceForKey){
 		widget.preferenceForKey = function(){return false};
 		widget.setPreferenceForKey = function(){return false};
 	}
+	widget.identifier = '0';
 	widget.openURL = function(url){
 		window.open(url);
 	}

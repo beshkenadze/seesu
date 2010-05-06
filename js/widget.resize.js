@@ -128,4 +128,4 @@ resizeWidg = function(){
     
 })()
 }
-document.addEventListener('DOMContentLoaded', resizeWidg, false);
+//document.addEventListener('DOMContentLoaded', resizeWidg, false);
