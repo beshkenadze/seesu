@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<gadget>
+	<name>Seesu</name>
+	<namespace>glebarestov.widgets.Seesu</namespace>
+	<version>1.7.2</version>
+	<author name="Gleb Arestov">
+	</author>
+	<description>You can find &amp; get any music you need. Type in an artist or genre.</description>
+	<icons>
+		<icon height="64" width="64" src="icon.png"/>
+	</icons>
+	<hosts>
+		<host name="sidebar">
+			<base type="HTML" apiVersion="1.0.0.0" src="index.html"/>
+			<permissions>Full</permissions>
+			<platform minPlatformVersion="1.0"/>
+			<defaultImage src="default.png"/>
+		</host>
+	</hosts>
+</gadget>
