@@ -101,7 +101,8 @@ var button_menu = function(jq_node){
 	})
 	.mousemove(function(e){
 		e.preventDefault();
-		e.target.ownerDocument.defaultView.getSelection().removeAllRanges();
+		if (window.getSelection) { window.getSelection().removeAllRanges(); } else 
+		if (document.selection && document.selection.clear) {document.selection.clear();}
 	});
 	
 	
