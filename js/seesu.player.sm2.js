@@ -1,3 +1,5 @@
+(window.js_trt = window.js_trt || []).push(({name: 'seesu.player.sm2.js', fn: function(){
+	
 if (typeof soundManager == 'object'){
 	soundManager.url = 'http://seesu.heroku.com/swf/';
 	soundManager.flashVersion = 9; // optional: shiny features (default = 8)
@@ -331,3 +333,4 @@ sm2_p.prototype = {
 		
 	}
 };
+return this;}}).fn())

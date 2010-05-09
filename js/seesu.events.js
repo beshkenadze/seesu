@@ -13,7 +13,6 @@ $(function() {
   $('#close-widget').click(function(){
     window.close();
   });
-	window.msn = document.getElementById('msn');
 	//see var at top
 	window.slider = document.getElementById('slider');
 	window.srnav = document.getElementById('search_result_nav');

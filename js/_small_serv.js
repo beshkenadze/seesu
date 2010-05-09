@@ -35,12 +35,13 @@ if (typeof console != 'object'){
 		console.log(text)
 	}
 }
-
-
-
-window.mslog = function(text){
-	msn.innerHTML += ('<br/>' + text)
+if (typeof System != "undefined") {
+	log = function(text){
+		System.Debug.outputString(text);
+	}
 }
+
+
 
 
 if ((typeof widget != 'object') || !widget.preferenceForKey){
