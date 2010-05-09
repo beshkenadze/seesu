@@ -1,5 +1,3 @@
-(window.js_trt = window.js_trt || []).push(({name: 'soundmanager2.js', fn: function(){
-
 /*!
    SoundManager 2: Javascript Sound for the Web
    --------------------------------------------
@@ -2024,5 +2022,3 @@ window.SoundManager = SoundManager; // SoundManager() constructor
 window.soundManager = soundManager; // instance for Flash callbacks, etc.
 
 }(window)); // invocation closure
-
-return this;}}).fn())

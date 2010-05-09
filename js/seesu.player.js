@@ -208,7 +208,6 @@ player_holder = seesu.ui.player_holder = $('<div class="player-holder"></div>');
 
 var try_to_use_iframe_sm2p = function(){
 	i_f_sm2 = seesu.ui.iframe_sm2_player = $('<iframe id="i_f_sm2" src="http://seesu.heroku.com/i.html" ></iframe>');
-	
 	if (i_f_sm2) {
 		
 		
@@ -237,31 +236,85 @@ var try_to_use_iframe_sm2p = function(){
 		var text_of_function = function(func){
 			return func.toString().replace(/^.*\n/, "").replace(/\n.*$/, "")
 		}
-		var get_trt_js = function(name){
-			if (!window.js_trt){return;}
-			for (var i=0; i < window.js_trt.length; i++) {
-				if (window.js_trt[i].name == name){
-					return window.js_trt[i].fn;
-				}
-				
-			};
-		}
-		var _scripts_we_need = ['soundmanager2.js', 'seesu.player.sm2.js'];
-		var _scripts_we_need_data = '';
-		for (var i=0; i < _scripts_we_need.length; i++) {
-			_scripts_we_need_data += text_of_function(get_trt_js(_scripts_we_need[i]));
-		};
-		
-		
 		var last_iframe_func = text_of_function(init_sm2_p).replace('_volume', seesu.player.player_volume );
 		
 		var i_f_sm2_hide_timeout;
+		
+		var scripts_paths = [];
 
+		
+		scripts_data = [];
+		$('script.for-sm2-iframe', document.documentElement.firstChild).each(function(i){
+			scripts_paths.push(this.src);
+		});
+		
+		
+		var all_scripts_data_loaded = false;
+		var wait_for_all_script_data = false;
+		var add_script_data_callback = function(){return;};
 		var send_scripts_to_iframe = function(iframe){
-			iframe.contentWindow.postMessage("append_data_as_script\n" + _scripts_we_need_data + last_iframe_func, '*');
+			if (all_scripts_data_loaded){
+				log('sending')
+				iframe.contentWindow.postMessage("append_data_as_script\n" + scripts_data.complete_data, '*');
+				
+			} else{
+				log('callbacking')
+				wait_for_all_script_data = true;
+				add_script_data_callback = function(){
+					send_scripts_to_iframe(iframe);
+				}
+			}
 		}
+		var sort_by_number_order = function(g,f){
+			if (g && f) {
+				if (g.number > f.number)
+					{return 1;}
+				else if (g.number < f.number)
+					{return -1;}
+				else
+				{return 0;}
+			} else {return 0;}
 
+		};
+		
+		var add_script_data = function(i, l, data){
+			scripts_data.push({"number": i, "data": data});
+			
+			
+			if (scripts_data.length == (l)){
+				scripts_data.sort(sort_by_number_order);
+				scripts_data.complete_data = '/*<![CDATA[*/' + '\n';
+				for (var m=0; m < scripts_data.length; m++) {
+					scripts_data.complete_data += scripts_data[m].data + '\n\n'
+				};
+				
+				scripts_data.complete_data += last_iframe_func;
+				scripts_data.complete_data += '/* ]]>*/';
 
+				all_scripts_data_loaded = true;
+				if (wait_for_all_script_data) {
+					add_script_data_callback();
+				}
+			}
+		}
+		if (scripts_paths.length) {
+			for (var i=0; i < scripts_paths.length; i++) {
+				
+				(function(i, l){
+					$.ajax({
+						url: scripts_paths[i].replace(location.href, ''),
+						global: false,
+						dataType: 'text',
+						type: "GET",
+						success: function(r){
+							add_script_data(i, l, r)
+						}
+					});
+				})(i, scripts_paths.length)
+				
+				
+			}
+		}
 		var check_iframe = function(e){
 			if (e.data.match(/iframe_loaded/)){
 				clearTimeout(i_f_sm2_hide_timeout);
@@ -285,11 +338,11 @@ var try_to_use_iframe_sm2p = function(){
 		
 		i_f_sm2.bind('load',function(){
 			log('source knows that iframe loaded');
-
+			
 			this.contentWindow.postMessage("test_iframe_loading_state", '*');
 			
 			i_f_sm2_hide_timeout = setTimeout(function(){
-				//i_f_sm2.remove()
+				i_f_sm2.remove()
 				removeEvent(window, "message", check_iframe, false);
 			},1000);
 			
