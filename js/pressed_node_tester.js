@@ -6,7 +6,11 @@ var test_pressed_node = function(original_node, mouseup){
 		if(clicked_node.is('a')) {
 		  if (class_name.match(/song/)){
 			return seesu.player.song_click(clicked_node);
-		  }	
+		  }
+		  if (class_name.match(/download-mp3/)){
+			widget.openURL(node.href);
+			return false;
+		  }
 		  else if (class_name.match(/waiting-full-render/)){
 			if (seesu.player.wainter_for_play) {seesu.player.wainter_for_play.removeClass('marked-for-play');}
 			clicked_node.data('want_to_play', seesu.player.want_to_play += 1).addClass('marked-for-play');
@@ -77,10 +81,10 @@ var test_pressed_node = function(original_node, mouseup){
 		}  else if ((node.nodeName == 'INPUT')) {
 			if (class_name.match(/flash-mess-switch/)) {
 				if(clicked_node.attr('checked')) {
-					widget.setPreferenceForKey('true', 'flash_internet');
+					w_storage('flash_internet', 'true');
 					$(document.body).addClass('flash-internet');
 				} else {
-					widget.setPreferenceForKey('', 'flash_internet');
+					w_storage('flash_internet', '');
 					$(document.body).removeClass('flash-internet');
 				}
 			} 
@@ -111,11 +115,11 @@ var test_pressed_node = function(original_node, mouseup){
 					});
 				}
 			} else if (class_name.match(/enable-scrobbling/)){
-				widget.setPreferenceForKey('true', 'lfm_scrobbling_enabled');
+				w_storage('lfm_scrobbling_enabled', 'true');
 				lfm_scrobble.scrobbling = true;
 				
 			} else if (class_name.match(/disable-scrobbling/)){
-				widget.setPreferenceForKey('', 'lfm_scrobbling_enabled');
+				w_storage('lfm_scrobbling_enabled', '');
 				lfm_scrobble.scrobbling = false;
 				
 			}else if (class_name.match(/mp3-audme/)){

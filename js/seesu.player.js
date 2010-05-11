@@ -1,4 +1,4 @@
-const INIT     = -11,
+var INIT     = -11,
 	  CREATED  = -7,
 	  VOLUME   = -5,
 	  STOPPED  =  1,
@@ -18,7 +18,7 @@ seesu.player = {
 	'iframe_player' 	: false,
 	'iframe_doc' 		: null,
 	'player_volume' 	: ( function(){
-		var volume_preference = widget.preferenceForKey('vkplayer-volume');
+		var volume_preference = w_storage('vkplayer-volume');
 		if (volume_preference && (volume_preference != 'undefined') && volume_preference != 'NaN'){
 			return parseFloat(volume_preference) || 80
 		} else {
@@ -200,14 +200,14 @@ function switch_to_next(){
   seesu.player.switch_to('next');
 }
 function change_volume(volume_value){
-  widget.setPreferenceForKey(volume_value, 'vkplayer-volume');
+  w_storage('vkplayer-volume', volume_value);
   seesu.player.player_volume = volume_value;	
 }
 
 player_holder = seesu.ui.player_holder = $('<div class="player-holder"></div>');
 
 var try_to_use_iframe_sm2p = function(){
-	i_f_sm2 = seesu.ui.iframe_sm2_player = $('<iframe id="i_f_sm2" src="http://seesu.heroku.com/iframe_fetch_scripts.html" ></iframe>');
+	i_f_sm2 = seesu.ui.iframe_sm2_player = $('<iframe id="i_f_sm2" src="http://seesu.heroku.com/i.html" ></iframe>');
 	if (i_f_sm2) {
 		
 		
@@ -219,7 +219,6 @@ var try_to_use_iframe_sm2p = function(){
 			} else{
 				sm2_p_in_iframe = new sm2_p(false, _volume, soundManager);
 				sm2_p_in_iframe.player_source_window = iframe_source;
-
 				soundManager.onready(function() {
 
 					if (soundManager.supported()) {
@@ -330,10 +329,10 @@ var try_to_use_iframe_sm2p = function(){
 				i_f_sm2.addClass('sm-inited');
 				$(document.body).addClass('flash-internet');
 				
-				window.removeEventListener("message", check_iframe, false);
+				removeEvent(window, "message", check_iframe);
 			}
 		}
-		window.addEventListener("message", check_iframe, false);
+		addEvent(window, "message", check_iframe);
 		$('#slider-materail').append(i_f_sm2);
 		
 		
@@ -344,7 +343,7 @@ var try_to_use_iframe_sm2p = function(){
 			
 			i_f_sm2_hide_timeout = setTimeout(function(){
 				i_f_sm2.remove()
-				window.removeEventListener("message", check_iframe, false);
+				removeEvent(window, "message", check_iframe, false);
 			},1000);
 			
 			
