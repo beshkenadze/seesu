@@ -3,7 +3,7 @@
 	
 	var store_get = function(){return false};
 	var store_set = function(){return false};
-	if (typeof widget === 'object') {
+	if ((typeof widget === 'object') && (typeof widget.setPreferenceForKey == 'function')) {
 		store_get = function(key){
 			return widget.preferenceForKey(key);
 		}
@@ -16,7 +16,8 @@
 			return localStorage.getItem(key);
 			
 		}
-		store_set = function(key, value){
+		store_set = function(key, value, important){
+			if (!important){return null;}
 			try {
 				return localStorage.setItem(key, value);
 			} catch(e){
@@ -42,9 +43,9 @@
 			return store_get(key);
 		}
 	}
-	var set_key = function(key, value){
+	var set_key = function(key, value, important){
 		ram_storage[key] = value;
-		return store_set(key, value);
+		return store_set(key, value, important);
 	}
 	
 	
@@ -64,12 +65,12 @@
 	
 	
 	
-	window.w_storage = function(key, value){
+	window.w_storage = function(key, value, important){
 		if (key){
 			if (typeof value === 'undefined'){
 				return get_key(key);
 			} else {
-				return set_key(key, stringify(value));
+				return set_key(key, stringify(value), important);
 			}
 		} else {
 			return false
