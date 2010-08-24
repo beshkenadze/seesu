@@ -2,7 +2,15 @@
 <html>
   <head>
 	<meta charset="utf-8">
-	<title>Seesu</title>
+	<meta name='vk_session' content='<%= params[:vk_session] %>'>
+	<meta name='search_query' content='<%= params[:q] %>'>
+	<title>Seesu online</title>
+	<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/>
+	<base href="/o/"/>
+	
+	
+	<link rel="alternate" type="application/x-opera-widgets" title="Seesu" href="http://widgets.opera.com/widget/15872/" />
+	
 	<link rel="stylesheet" href="css/master.css" type="text/css" media="screen" />
 	<link rel="stylesheet" href="css/view_switcher.css" type="text/css" media="screen" />
 	<link rel="stylesheet" href="css/vkontakte_switcher.css" type="text/css" media="screen" />
@@ -12,16 +20,56 @@
 	<link rel="stylesheet" href="css/buttmen.css" type="text/css" media="screen" />
 	<link rel="stylesheet" href="css/play-list-panel.css" type="text/css" media="screen" />
 	<link rel="stylesheet" href="css/abs_layout.css" type="text/css" media="screen" />
-	<script>
-		var _gaq = _gaq || [];
-		_gaq.push(['_setAccount', 'UA-17915703-1']);
-		_gaq.push(['_trackPageview']);
-
-		(function() {
-			var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-			ga.src = 'https://ssl.google-analytics.com/ga.js';
-			var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-		})();
+	<script type="text/javascript">
+	/*<![CDATA[*/
+	var openstat = { counter: 2101409, next: openstat };
+	(function(){
+		var opst = document.createElement('script');
+			opst.setAttribute('async', 'true');
+			opst.src = '//openstat.net/cnt.js';
+		var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(opst, s);
+	})();
+	/* ]]>*/
+	</script>
+	<script type="text/javascript">
+	/*<![CDATA[*/
+	var _gaq = _gaq || [];
+	_gaq.push(
+	    ['_setAccount', "UA-16735697-1"],
+	    ['_setDomainName', '.seesu.me'],
+	    ["_addOrganic", "mail.ru", "q"],
+	    ["_addOrganic","rambler.ru", "words"],
+	    ["_addOrganic","nigma.ru", "s"],
+	    ["_addOrganic","blogs.yandex.ru", "text"],
+	    ["_addOrganic","webalta.ru", "q"],
+	    ["_addOrganic","aport.ru", "r"],
+	    ["_addOrganic","akavita.by", "z"],
+	    ["_addOrganic","meta.ua", "q"],
+	    ["_addOrganic","bigmir.net", "q"],
+	    ["_addOrganic","tut.by", "query"],
+	    ["_addOrganic","all.by", "query"],
+	    ["_addOrganic","i.ua", "q"],
+	    ["_addOrganic","online.ua", "q"],
+	    ["_addOrganic","a.ua", "s"],
+	    ["_addOrganic","ukr.net", "search_query"],
+	    ["_addOrganic","search.com.ua", "q"],
+	    ["_addOrganic","search.ua", "query"],
+	    ["_addOrganic","poisk.ru", "text"],
+	    ["_addOrganic","km.ru", "sq"],
+	    ["_addOrganic","liveinternet.ru", "ask"],
+	    ["_addOrganic","gogo.ru", "q"],
+	    ["_addOrganic","gde.ru", "keywords"],
+	    ["_addOrganic","quintura.ru", "request"],
+	    ['_trackPageview']
+	);
+	
+	(function(){
+		var ga = document.createElement('script');
+			ga.setAttribute('async', 'true');
+			ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+		var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+	})();	
+	/* ]]>*/
 	</script>
 	<script type="text/javascript" src="js/_small_serv.js"></script>
 	<script type="text/javascript" src="js/w_storage.js"></script>
@@ -30,6 +78,16 @@
 	
 	<script type="text/javascript" src="js/json2.min.js"></script>
 	<script type="text/javascript" src="js/md5.min.js"></script>
+	<script type="text/javascript">
+		(function(){
+			var a = document.getElementsByName('vk_session');
+			if (a && a.length){
+				if (a[0] && a[0].content){
+					window.vk_session = JSON.parse(a[0].content);
+				}
+			}
+		})()
+	</script>
 	<script type="text/javascript" src="js/jquery-1.4.2.min.js" class="for-iframe"></script>
 	<script type="text/javascript" src="js/widget.resize.js"></script>
 
@@ -64,7 +122,7 @@
 
   </head>
   
-  <body class="track-zoomed as-application">
+  <body class="track-zoomed">
 <div id="slider" class="show-start">
 	<div class="navs">
 		<div class="nav nav-start" id="start_search" >
@@ -98,7 +156,7 @@
 						
 						
 						<form id="search" name="search">
-							<p id="search-p"><label><span>Search</span><input type="text" name="q" id="q" size="50"  autocomplete="off"/></label></p>
+							<p id="search-p"><label><span>Search</span><input type="text" name="q" id="q" size="50"  autocomplete="off" value="<%= params[:q] %>"/></label></p>
 							<p id="search-desciption">Use keyboard: tab, enter, arrows up and down</p>
 						</form>
 						<div id="search_result" class="search-results-holder" ></div>
