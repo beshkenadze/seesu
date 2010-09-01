@@ -10,8 +10,6 @@ var test_pressed_node = function(original_node, mouseup){
 			} else{
 				seesu.player.song_click(clicked_node);
 			}
-		  	
-		  	
 			return ;
 		  }
 		  if (class_name.match(/download-mp3/)){
@@ -42,9 +40,7 @@ var test_pressed_node = function(original_node, mouseup){
 					addEvent(window, "message", listen_vk_api_callback_window);
 					clicked_node.data('popup_listening', true)
 				}
-				
 				window.open('http://vk.com/login.php?app=1915003&layout=openapi&channel=http://seesu.me/vk_auth.html&settings=8');
-				
 			}
 			
 			return false;
@@ -110,7 +106,13 @@ var test_pressed_node = function(original_node, mouseup){
 		  	widget.openURL(node.href)
 		  	return false;
 		  }
-		 
+		  else if (class_name.match(/hint-query/)){
+		  	var query = clicked_node.text();
+		  	search_input.val(query);
+			input_change(search_input[0])
+		  	clicked_node.text(seesu.popular_artists[(Math.random()*10).toFixed(0)])
+		  	return false;
+		  }
 		}  else if ((node.nodeName == 'INPUT')) {
 			if (class_name.match(/tb-mess-wrap-close/)){
 				clicked_node.parents('li').removeClass('tb-window');

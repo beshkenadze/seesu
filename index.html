@@ -119,7 +119,7 @@
 
   </head>
   
-  <body class="track-zoomed">
+  <body>
 <div id="slider" class="show-start">
 	<div class="navs">
 		<div class="nav nav-start" id="start_search" >
@@ -165,7 +165,9 @@
 								
 							</p>
 
-							<p id="search-desciption">Use keyboard: tab, enter, arrows up and down</p>
+							<p id="search-use-hint" class="search-desc">try to search <a id='hint-query' href="javascript:void(0)" class="hint-query js-serv">The Beatles</a></p>
+							<p id="search-desciption" class="search-desc">Use keyboard: up and down arrows, enter</p>
+
 						</form>
 						<div id="search_result" class="search-results-holder" ></div>
 					</div>
@@ -219,7 +221,7 @@
 					</div>
 					<dl class="buttmen play-controls">
 						<dt class="main-button">
-							<a class="play-control play">
+							<a class="play-control play" href="javascript:void(0)">
 								<img src="i/buttons_play.png" alt="play" class="pl-control" />
 							</a>
 							<span class="buttmen-mask"></span>
@@ -277,7 +279,7 @@
 							
 							<ul class="track-buttons">
 								<li title="About «Adobe Flash Player Security»" id="flash-secur">
-									<a class="flash-security-status trackbutton">fl</a>
+									<a href="javascript:void(0)" class="flash-security-status trackbutton">fl</a>
 									<div class="track-button-content" id="message-flash-secur">
 										<div class="triangle"></div>
 										<div class="balun">							
@@ -294,16 +296,12 @@
 												<input type="button" value="Close message" class="tb-mess-wrap-close"/>
 												
 											</p>
-											<div class="bal tl"></div>
-											<div class="bal tr"></div>
-											<div class="bal bl"></div>
-											<div class="bal br"></div>
 	
 										</div>
 									</div>
 								</li>
 								<li class="scrobbling-button"  title="Last.fm scrobbling">
-									<a class="trackbutton">sc</a>
+									<a href="javascript:void(0)" class="trackbutton">sc</a>
 									<div class="track-button-content">
 										
 										<div class="triangle"></div>
@@ -319,10 +317,6 @@
 												<p class="lfm-finish"><label><input type='checkbox' class="scrobbling-grant"/> I've granted my account access to Seesu</label></p>
 											</div>
 											<p><input type="button" value="Close message" class="tb-mess-wrap-close"/></p>
-											<div class="bal tl"></div>
-											<div class="bal tr"></div>
-											<div class="bal bl"></div>
-											<div class="bal br"></div>
 										</div>
 									</div>
 									
@@ -333,7 +327,7 @@
 							
 						</div>
 						<div class="vk-login-context">
-							<div>To get mp3 files you need to <a class="js-serv sign-in-to-vk">sign in</a> to vk.com (vkontakte.ru). You may <a class="vk-reg-ref js-serv" >create new account</a> (it's free).</div>
+							<div>To get mp3 files you need to <a href="javascript:void(0)" class="js-serv sign-in-to-vk">sign in</a> to vk.com (vkontakte.ru). You may <a href="http://vk.com/reg198193" target="_blank" class="vk-reg-ref js-serv" >create new account</a> (it's free).</div>
 							<form  class="vk-auth" >
 								<p>
 									<label for="email-arts">E-mail</label>
