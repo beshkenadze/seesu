@@ -207,7 +207,7 @@ display:none;
 	clear:both;
 	}
 	.tracks-for-play>ul>li{
-		margin: 0 0 3px;
+		margin: 0 42px 3px 0;
 		overflow:hidden;
 		}
 .artist-image{
@@ -334,8 +334,12 @@ display:none;
 	width:100%;
 	box-sizing:border-box;
 }
-@media (min-width:700px){
-	
+@media (min-width:770px){
+	.vk-login-context{
+		-moz-border-radius:6px;
+		-webkit-border-radius:6px;
+		border-radius:6px;
+	}
 }
 #search #search-p{
 	margin:10px 0 5px;
