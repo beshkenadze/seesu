@@ -1,10 +1,98 @@
-hard_testing = false;
+window.addEvent = window.addEventListener ? 
+	function(elem, evType, fn){
+		elem.addEventListener(evType, fn, false);
+		return fn;
+	}:
+	function(elem, evType, fn){
+		elem.attachEvent('on' + evType, fn);
+		return fn;
+	};
+window.removeEvent = window.addEventListener ?
+	function(elem, evType, fn){
+		elem.removeEventListener(evType, fn, false);
+	}:
+	function(elem, evType, fn){
+		elem.detachEvent('on' + evType, fn)
+	};
+	
+(function(){
+	var jsonp_counter = 0;
+	window.create_jsonp_callback = function(func){
+		var func_name = 'jsonp_callback_' + (++jsonp_counter);
+		window[func_name] = func;
+		
+		
+		
+		return func_name;
+	}	
+})()
+
+window.app_env = (function(){
+	var env = {};
+	if (typeof widget == 'object' && !widget.fake_widget){
+		if ($.browser.opera){
+			env.app_type = 'opera_widget';
+		} else {
+			env.app_type = 'apple_db_widget';
+		}
+		env.as_application = true;
+	} else
+	if (typeof chrome === 'object' && location.protocol == 'chrome-extension:'){
+		env.app_type = 'chrome_extension';
+		env.as_application = false;
+	} else
+	if (location.protocol.match(/http/)){
+		env.app_type = 'web_app';
+		env.as_application = false;
+	} else 
+	if (typeof btapp == 'object'){
+		env.app_type = 'utorrent_app';
+		env.as_application = false;
+	} else
+	if ($.browser.mozilla){
+		env.app_type = 'firefox_widget';
+		env.as_application = true;
+	}  
+	 else{
+		env.app_type = false;
+	}
+	
+	
+	if (env.as_application){$(document.documentElement).addClass('as-application')}
+	if (env.app_type){$(document.documentElement).addClass(env.app_type.replace('_','-'))}
+	
+	if (!env.app_type){
+		env.app_type = 'unknown_app_type' + (navigator.userAgent && ': ' + navigator.userAgent); 
+	} else{
+		env[env.app_type] = true
+	}
+	
+	
+	
+	return env;
+})();
+
+
+
+if (typeof widget != 'object'){
+	window.widget = {
+		fake_widget: true,
+		identifier : 0,
+		openURL: function(url){
+			window.open(url);
+		}
+	}
+}
+
+
+
+var hard_testing = false;
 
 if (typeof console != 'object'){
 	
 	
 	if  (navigator.userAgent.match(/Opera/)){
-		log = function(){
+		window.log = function(){
 				opera.postError.apply(opera, arguments)
 			
 		}
@@ -28,43 +116,15 @@ if (typeof console != 'object'){
 	
 	console = {};
 	console.log = function(text){
-		log(text)
+		window.log(text)
 	}	
 } else {
-	log = function(text){
+	window.log = function(text){
 		console.log(text)
 	}
 }
 if (typeof System != "undefined") {
-	log = function(text){
+	window.log = function(text){
 		System.Debug.outputString(text);
 	}
 }
-
-
-
-
-if ((typeof widget != 'object')){
-	window.widget = {};
-	widget.identifier = '0';
-	widget.openURL = function(url){
-		window.open(url);
-	}
-	
-}
-window.addEvent = window.addEventListener ? 
-	function(elem, evType, fn){
-		elem.addEventListener(evType, fn, false);
-		return fn;
-	}:
-	function(elem, evType, fn){
-		elem.attachEvent('on' + evType, fn);
-		return fn;
-	};
-window.removeEvent = window.addEventListener ?
-	function(elem, evType, fn){
-		elem.removeEventListener(evType, fn, false);
-	}:
-	function(elem, evType, fn){
-		elem.detachEvent('on' + evType, fn)
-	};

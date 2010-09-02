@@ -1,20 +1,15 @@
 body{
-	position:relative;	/* complex bugfix for opera 10.10 weird widget scroll */
-	width:100%;			/* complex bugfix for opera 10.10 weird widget scroll */
-}
-body{
 	margin:0;
 	padding:0;
 	color:#eee;
-	overflow:hidden;
+	
 	height:596px;
 	font-size:12px;
 	font-family:Helvetica , Arial ,sans-serif;
 	}
-html{
-	overflow:hidden;	/* complex bugfix for opera 10.10 weird widget scroll */
-	position: absolute; /* complex bugfix for opera 10.10 weird widget scroll */
-	width:100%;			/* complex bugfix for opera 10.10 weird widget scroll */
+:not(.as-application) body{
+	background-color: #505050;
+	padding-bottom:15px;
 }
 label{cursor:pointer}
 input[type=text]{
@@ -38,6 +33,7 @@ dl,dt,dd{
 }
 ul{list-style:none;padding:0;margin-top:0;}
 a{color:#d5d5d5;}
+
 a[href],a.js-serv{
 	color:#a1d404;
 	text-decoration:none;
@@ -50,24 +46,26 @@ a[href],a.js-serv{
 	a[href]:active,a.js-serv:active{
 		color:#999;
 		}
-
+a[href='javascript:void(0)']{
+	border-bottom-style:dashed;
+}
 
 a.js-serv,
 a.bbcode_artist,
 a.bbcode_tag{
 	cursor:pointer;
 	text-decoration:none;
-	border-bottom:1px dashed #647142;
+	border-bottom:1px dashed #647142  !important;
 	}
 	a.js-serv:hover,
 	a.bbcode_artist:hover,
 	a.bbcode_tag:hover{
-		border-bottom-color:#a1d404;
+		border-bottom-color:#a1d404  !important;
 		}
 	a.js-serv:active,
 	a.bbcode_artist:active,
 	a.bbcode_tag:active{
-		border-bottom-color:#999;
+		border-bottom-color:#999  !important;
 		}
 
 
@@ -99,9 +97,12 @@ a.bbcode_tag{
 }
 
 
-
-
-
+.needs-cross-domain{
+	display:none;
+}
+.cross-domain-allowed .needs-cross-domain{
+	display:block;
+}
 
 
 
@@ -152,6 +153,7 @@ display:none;
 	
 .search-start{
 	margin-bottom:1em;
+	max-width:562px;
 	}
 	.search-start
 	form{
@@ -175,13 +177,26 @@ display:none;
 				-apple-dashboard-region: dashboard-region(control rectangle 0 0 0 0);
 				}
 .info{overflow:hidden;padding-left:8px}
-.info
-.image{
-	float:left;
+.info .image{
 	margin-right:13px;
 	margin-bottom:7px;
 	}
-
+@media (min-width:600px) {
+	.info .image{
+		float:left;
+	}
+	.desc-name{
+		float:left;
+		min-height:1.5em;
+		width:126px;
+		text-align:right;
+	}
+	.desc-text{
+		overflow:hidden;
+		display: table-cell;
+	}
+	
+}
 
 .play-list-holder{
 	padding-top:30px;
@@ -193,11 +208,15 @@ display:none;
 	clear:both;
 	}
 	.tracks-for-play>ul>li{
-		margin: 0 0 3px;
+		margin: 0 42px 3px 0;
 		overflow:hidden;
 		}
 .artist-image{
 	width:126px;
+	display:none;
+	}
+	.artist-image[src]{
+		display:block;
 	}
 .artist-bio{
 	line-height:1.5em;
@@ -226,15 +245,12 @@ display:none;
 	margin:0.5em 0;
 }		
 .desc-name{
-	min-height:1.5em;
-	float:left;
-	width:126px;
 	margin-right: 13px;
-	text-align:right;
+}
+.artist-albums .desc-name{
+	float:left;
 }
 .desc-text{
-	overflow:hidden;
-	display: table-cell;
 	padding-bottom:2px;
 }	
 .artist-albums ul{
@@ -244,6 +260,12 @@ display:none;
 	}
 	.artist-albums ul li{
 		float:left;
+		}
+	.artist-albums ul li img{
+			float:left;
+		}
+		
+	.artist-albums ul li{
 		width:190px;
 		margin-bottom:30px;
 		}
@@ -262,7 +284,6 @@ display:none;
 			display:none;
 		}
 		.artist-albums ul li img{
-			float:left;
 			width:64px;
 			min-height:64px;
 			margin-right:4px;
@@ -311,22 +332,37 @@ display:none;
 	
 	}
 #search #q{
-	width:500px;
+	width:100%;
 	box-sizing:border-box;
+}
+@media (min-width:770px){
+	.vk-login-context{
+		-moz-border-radius:6px;
+		-webkit-border-radius:6px;
+		border-radius:6px;
+	}
 }
 #search #search-p{
 	margin:10px 0 5px;
+	overflow:hidden;
 	}
-	#search #search-p span{
-		display:inline-block;
+	#search #search-p label span.lbl{
+		float:left;
 		width:60px;
+		padding-top:4px;
+		font-style:normal;
 	}
-#search-desciption{
-	margin-top:0;
+	#search #search-p label span.inpt{
+		overflow:hidden;
+		display:block;
+	}
+.search-desc{
 	padding-left:60px;
 	font-size:0.9em;
 	color:#999;
+	margin-top:0;
 }
+
 #update-star{
 	position:absolute;
 	left:15px;
@@ -352,6 +388,10 @@ display:none;
 .balun {
 	display:block;
 	position: absolute;
+	background-color:#ddd;
+	-moz-border-radius:6px;
+	-webkit-border-radius:6px;
+	border-radius:6px;
 	width: 100%;
 	padding:10px;
 }
@@ -363,38 +403,6 @@ display:none;
 			color:#333;
 			border-bottom-color:#333;
 		}
-	.bal {
-		position: absolute;
-		background: url(../i/corners.png) no-repeat;
-		z-index: -1;
-	}
-    .tl {
-      top: -6px;
-      bottom: 28px;
-      left: -11px;
-      right: 14px;
-    }
-    .tr {
-      width: 25px;
-      top: -6px;
-      bottom: 28px;
-      right: -11px;
-      background-position: top right;
-    }
-    .bl {
-      left: -11px;
-      right: 14px;
-      bottom: 0;
-      height: 28px;
-      background-position: bottom left;
-    }
-    .br {
-      width: 25px;
-      height: 28px;
-      right: -11px;
-      bottom: 0;
-      background-position: bottom right;
-    }
 #sm2-container{
 	width:8px;
 	height:8px;
@@ -403,9 +411,19 @@ display:none;
 	top:5px;
 	left:0;
 	}
+	
 	#sm2-container.swf_error{
 		display:none;
-	}
+		}
+
+html:not(.as-application){
+	position:static;
+}
+html:not(.as-application), :not(.as-application)  body{
+	height:100%  !important;
+	
+}
+
 #now-play-b{
 	margin-top:2em;
 }

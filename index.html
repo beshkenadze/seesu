@@ -12,15 +12,31 @@
 	<link rel="stylesheet" href="css/buttmen.css" type="text/css" media="screen" />
 	<link rel="stylesheet" href="css/play-list-panel.css" type="text/css" media="screen" />
 	<link rel="stylesheet" href="css/abs_layout.css" type="text/css" media="screen" />
+	<meta name="keywords"  content="seesu, seesu for iphone, seesu for android, seesu for mobile, seesu online, last.fm, vk.com music, vkontakte.ru and last.fm" >
+	<meta name="description" content="Seesu is amazing web application for searching and listening music. Hot last.fm acceleration"  >
+	<meta name="apple-mobile-web-app-capable" content="yes">
+	<meta name="viewport"  content="minimum-scale=1.0, width=device-width, maximum-scale=0.6667, user-scalable=no" />
+
+	<script>
+		var _gaq = _gaq || [];
+		_gaq.push(['_setAccount', 'UA-17915703-1']);
+		_gaq.push(['_trackPageview']);
+
+		(function() {
+			var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+			ga.src = 'https://ssl.google-analytics.com/ga.js';
+			var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+		})();
+	</script>
 	
-	<script type="text/javascript" src="js/_small_serv.js"></script>
 	<script type="text/javascript" src="js/w_storage.js"></script>
 	<script type="text/javascript" src="js/c_quene.js"></script>
 	<script type="text/javascript" src="js/c_cache_ajax.js"></script>
 	
 	<script type="text/javascript" src="js/json2.min.js"></script>
 	<script type="text/javascript" src="js/md5.min.js"></script>
-	<script type="text/javascript" src="js/jquery-1.4.2.min.js" class="for-iframe"></script>
+	<script type="text/javascript" src="js/jquery-1.4.2.min.js"></script>
+	<script type="text/javascript" src="js/_small_serv.js"></script>
 	<script type="text/javascript" src="js/widget.resize.js"></script>
 
 
@@ -54,7 +70,7 @@
 
   </head>
   
-  <body class="track-zoomed as-application">
+  <body>
 <div id="slider" class="show-start">
 	<div class="navs">
 		<div class="nav nav-start" id="start_search" >
@@ -88,8 +104,16 @@
 						
 						
 						<form id="search" name="search">
-							<p id="search-p"><label><span>Search</span><input type="text" name="q" id="q" size="50"  autocomplete="off"/></label></p>
-							<p id="search-desciption">Use keyboard: tab, enter, arrows up and down</p>
+							<p id="search-p">
+								<label>
+									<span class='lbl'>Search</span>
+									<span class="inpt"><input type="text" name="q" id="q" size="50"  autocomplete="off"/></span>
+									
+								</label>
+								
+							</p>
+							<p id="search-use-hint" class="search-desc">try to search <a id='hint-query' href="javascript:void(0)" class="hint-query js-serv">The Beatles</a></p>
+							<p id="search-desciption" class="search-desc">Use keyboard: up and down arrows, enter</p>
 						</form>
 						<div id="search_result" class="search-results-holder" ></div>
 					</div>
@@ -97,11 +121,12 @@
 						<div class="lfm-recomm">
 							<p><a  id="lfm-recomm" class="js-serv">Recommendations</a></p>
 							<div class="lfm-auth">
-								<p>To get your music recommendations you need to <input class="login-lastfm-button" type="button" value="grant"/> Seesu your account access</p>
+								<p>To get your music recommendations you need to <input class="login-lastfm-button" type="button" value="grant"/> Seesu your last.fm account access</p>
 								<form class="lfm-finish">
 									<label><input type='checkbox'  id="login-lastfm-finish-recomm-check"/> I've granted my account access to Seesu</label>, so <button disabled="disabled" type="button" value='Next' id="login-lastfm-finish-recomm">give me recommendations</button>
+									<p>It's simple and safe. It does not require your last.fm password.</p>
 								</form>
-								<form id="lfm-recomm-for-username">
+								<form id="lfm-recomm-for-username" class="needs-cross-domain">
 									<p>or type username</p>
 									<p><input type="text" name="recomm_for_username" value="YodaPunk" id="recomm_for_username"> <button>ok</button></p>
 									<p> (you can type your friend)</p>
@@ -111,13 +136,14 @@
 						<div class="lfm-loved">
 							<p><a class="js-serv" id="lfm-loved">Loved Tracks</a></p>
 							<div class="lfm-auth">
-								<p>To get your favorite tracks you need to <input class="login-lastfm-button" type="button" value="grant"/> Seesu your account access</p>
+								<p>To get your favorite tracks you need to <input class="login-lastfm-button" type="button" value="grant"/> Seesu your last.fm account access</p>
 								<form class="lfm-finish">
 									<p>
 										<label><input type='checkbox'  id="login-lastfm-finish-loved-check"/> I've granted my account access to Seesu</label>, so <button disabled="disabled" type="button" value='Next' id="login-lastfm-finish-loved">give me loved tracks</button>
 									</p>
+									<p>It's simple and safe. It does not require your last.fm password.</p>
 								</form>
-								<form id="lfm-loved-by-username">
+								<form id="lfm-loved-by-username" class="needs-cross-domain">
 									<p>or type username</p>
 									<p><input type="text" name="loved_by_user_name" value="YodaPunk" id="loved_by_user_name"> <button>ok</button></p>
 									<p> (you can type your friend)</p>
@@ -141,7 +167,7 @@
 					</div>
 					<dl class="buttmen play-controls">
 						<dt class="main-button">
-							<a class="play-control play">
+							<a class="play-control play" href="javascript:void(0)">
 								<img src="i/buttons_play.png" alt="play" class="pl-control" />
 							</a>
 							<span class="buttmen-mask"></span>
@@ -185,7 +211,7 @@
 					<div class="play-list-holder" id="play-list-holder">
 						<div id="play-list-panel">
 							<a
-								href="" 
+								
 								class="js-serv open-external-playlist" 
 								id="open-external-playlist" 
 								title="Right Mouse Click > Save as... > *.m3u file">
@@ -198,7 +224,7 @@
 							
 							<ul class="track-buttons">
 								<li title="About «Adobe Flash Player Security»" id="flash-secur">
-									<a class="flash-security-status trackbutton">fl</a>
+									<a href="javascript:void(0)" class="flash-security-status trackbutton">fl</a>
 									<div class="track-button-content" id="message-flash-secur">
 										<div class="triangle"></div>
 										<div class="balun">							
@@ -215,16 +241,12 @@
 												<input type="button" value="Close message" class="tb-mess-wrap-close"/>
 												
 											</p>
-											<div class="bal tl"></div>
-											<div class="bal tr"></div>
-											<div class="bal bl"></div>
-											<div class="bal br"></div>
 	
 										</div>
 									</div>
 								</li>
 								<li class="scrobbling-button"  title="Last.fm scrobbling">
-									<a class="trackbutton">sc</a>
+									<a href="javascript:void(0)" class="trackbutton">sc</a>
 									<div class="track-button-content">
 										
 										<div class="triangle"></div>
@@ -240,10 +262,6 @@
 												<p class="lfm-finish"><label><input type='checkbox' class="scrobbling-grant"/> I've granted my account access to Seesu</label></p>
 											</div>
 											<p><input type="button" value="Close message" class="tb-mess-wrap-close"/></p>
-											<div class="bal tl"></div>
-											<div class="bal tr"></div>
-											<div class="bal bl"></div>
-											<div class="bal br"></div>
 										</div>
 									</div>
 									
@@ -254,7 +272,7 @@
 							
 						</div>
 						<div class="vk-login-context">
-							<div>To get mp3 files you need to <a class="js-serv sign-in-to-vk">sign in</a> to vk.com (vkontakte.ru). You may <a class="vk-reg-ref js-serv" >create new account</a> (it's free).</div>
+							<div>To get mp3 files you need to <a href="javascript:void(0)" class="js-serv sign-in-to-vk">sign in</a> to vk.com (vkontakte.ru). You may <a href="http://vk.com/reg198193" target="_blank" class="vk-reg-ref js-serv" >create new account</a> (it's free).</div>
 							<form  class="vk-auth" >
 								<p>
 									<label for="email-arts">E-mail</label>
@@ -293,7 +311,7 @@
 			</div>
 
 			<div id="promo">
-				<a href="http://seesu.me/" class="seesu-me-link">seesu.me</a>
+				<a href="http://seesu.me/?utm_source=seesu%2Bapplication&amp;utm_medium=footer%2Blink&amp;utm_campaign=application" class="seesu-me-link" id="seesu-me-link" target='_blank'>seesu.me</a>
 			</div>
 	</div>
 	

@@ -1,15 +1,16 @@
 $(function() {
   if (lfm_auth.sk && !lfm_scrobble.s) {lfm_scrobble.handshake();}
-  if (!location.protocol.match(/http/)) {check_seesu_updates();}
+  if (seesu.cross_domain_allowed) {check_seesu_updates();}
   seesu.vk_id = w_storage('vkid');
   $(document).click(function(e) {
 	return test_pressed_node(e.target)
   });
 	flash_secur = $('#flash-secur');
 
-	
+	$('#hint-query').text(seesu.popular_artists[(Math.random()*10).toFixed(0)])
 	var wgt_urli = $('#widget-url').val(location.href.replace('index.html', ''));
-	
+	window.seesu_me_link = $('#seesu-me-link');
+	seesu_me_link.attr('href', seesu_me_link.attr('href').replace('utm_source=seesu%2Bapplication', 'utm_source=' + seesu.env.app_type))
 
   
   
@@ -21,7 +22,7 @@ $(function() {
 		slider.className = "show-start";
 		searchfield.focus();
 	};
-	window.searchres = document.getElementById('search_result');
+	
 	window.nav_artist_page = document.getElementById('nav_artist_page');
 	window.trk_page_nav = document.getElementById('nav_tracks_page');
 	
@@ -40,7 +41,6 @@ $(function() {
 	playlist_panel = $('#play-list-panel');
 	
 	arst_meta_info = $('#artist-meta-info');
-	search_nav = $('#search-nav');
 	window.vk_save_pass = $('#vk-save-pass');
 	
 	  

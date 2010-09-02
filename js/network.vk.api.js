@@ -1,16 +1,11 @@
-
-
-
 //var viewer_id 		= seesu.vk_id;
-var vk_api = function(viewer_id, s, api_id, test_mode, cache){
-	this.viewer_id 	= viewer_id;
-	this.s 			= s;
+var vk_api = function(api_id, s, sid, viewer_id, cache){
+	this.sid 	= sid;
 	this.api_id 	= api_id;
-	this.api_link 	= 'http://api.vkontakte.ru/api.php';
-	this.v 			= '2.0';
-	if (test_mode){
-		this.test_mode = true;
-	}
+	this.api_link 	= 'http://api.vk.com/api.php';
+	this.v 			= '3.0';
+	this.s = s;
+	this.viewer_id = viewer_id;
 	if (cache){
 		this.use_cache = true;
 	}
@@ -27,18 +22,26 @@ vk_api.prototype = {
 				params_full = params || {},
 				apisig =  true; // yes, we need signature
 			
+				
+				
 			params_full.method 	= method;
 			params_full.api_id 	= this.api_id;
 			params_full.v		= this.v;
-			params_full.format 	= params_full.format || 'json';
+			params_full.format 	= params_full.format || 'JSON';
+			params_full.sid 	= this.sid;
+			params_full.callback= create_jsonp_callback(function(r){
+				var r = (typeof r == 'object') ? r : JSON.parse(r);
+				cache_ajax.set('vk_api', params_full.sig, r);
+				if (qcheck == seesu.mp3_quene.big_quene || seesu.mp3_quene.big_quene.length == 0){
+					if (callback) {callback(r);}
+				}
+			});
 			
-			if (this.test_mode) {
-				params_full.test_mode = 1;
-			}
 			if(apisig || use_cache) {
 				for (var param in params_full) {
-					pv_signature_list.push(param + '=' + params_full[param]);
-					
+					if (param != 'sid'){
+						pv_signature_list.push(param  + '=' + params_full[param]);
+					}
 				}
 				
 				pv_signature_list.sort();
@@ -46,13 +49,21 @@ vk_api.prototype = {
 				for (var i=0, l = pv_signature_list.length; i < l; i++) {
 					paramsstr += pv_signature_list[i];
 				};
-				
+				if (use_cache){
+					var cache_hash = '';
+					for (var i=0, l = pv_signature_list.length; i < l; i++) {
+						if (!pv_signature_list[i].match(/^callback/))
+						cache_hash += pv_signature_list[i];
+					};
+					cache_hash = hex_md5(cache_hash);
+					
+				}
 				params_full.sig = hex_md5(this.viewer_id + paramsstr + this.s);
 
 			}
 			
 			if (use_cache){
-				var cache_used = cache_ajax.get('vk_api', params_full.sig, callback)
+				var cache_used = cache_ajax.get('vk_api', cache_hash, callback)
 				if (cache_used) {
 					return true;
 				}
@@ -61,30 +72,22 @@ vk_api.prototype = {
 			if (seesu.delayed_search.waiting_for_mp3provider){
 				return false;
 			}
+			
+			
 			var qcheck = seesu.mp3_quene.big_quene;
 			seesu.mp3_quene.add(function(){
 				$.ajax({
 				  url: _this.api_link,
 				  global: false,
 				  type: "GET",
-				  dataType: params_full.format || "XML",
+				  dataType: 'script',
 				  data: params_full,
 				  timeout: 20000,
+				  jsonpCallback: params_full.callback, 
 				  error: function(xhr){
 					if (qcheck == seesu.mp3_quene.big_quene || seesu.mp3_quene.big_quene.length == 0){
-						if (error) {error(xhr);}
-					}
-				  	
-				  	
-				  },
-				  success: function(r){
-				  	cache_ajax.set('vk_api', params_full.sig, r);
-				  	if (qcheck == seesu.mp3_quene.big_quene || seesu.mp3_quene.big_quene.length == 0){
-						if (callback) {callback(r);}
-					}
-					
-				  },
-				  complete: function(xhr){
+						if (error && xhr) {error(xhr);}
+					}	
 				  }
 				});
 				if (after_ajax) {after_ajax();}
@@ -130,29 +133,15 @@ vk_api.prototype = {
 	}
 }
 
-$(function(){
-	seesu.vk_api =  new vk_api('82336533', 'sykmuB665c', '1871450', true, true);
-	seesu.delayed_search.vk_api.search_tracks = function(){
-		seesu.vk_api.audio_search.apply(seesu.vk_api, arguments)
-	};
-	seesu.vk_api.audio_search('killers',function(){
-		seesu.delayed_search.available.push('vk_api');
-		swith_to_provider(true);
-		$('#mp3way-vk-api').removeClass('cant-be-used');
-		
-		prov_count_down--;
-		if (prov_count_down == 0){
-			swith_to_provider();
-		}
-	},function(){
-		log()
-		prov_count_down--;
-		if (prov_count_down == 0){
-			swith_to_provider();
-		}
-		
-	}, true);
 
-	
-
-})
+window.listen_vk_api_callback_window = function(e){
+	if (e.origin == "http://seesu.me") {
+		if (e.data.match(/^set_vk_auth\n/)){
+			set_vk_auth(e.data.replace(/^set_vk_auth\n/, ''), true)
+		} else if (e.data == 'vkapi_auth_callback_ready'){
+			e.source.postMessage('get_vk_auth', 'http://seesu.me');
+		}
+	} else {
+		return false;
+	}
+}
