@@ -6,7 +6,11 @@
 	<meta name='search_query' content='<%= params[:q] %>'>
 	<title>Seesu online</title>
 	<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/>
-	<base href="/o/"/>
+	<script type="text/javascript">
+		/*<![CDATA[*/
+		document.write('<'+'base '+'href="'+location.protocol+'//'+location.host+'/o/'+'"/>')
+		/* ]]>*/
+	</script>
 	
 	
 	<link rel="alternate" type="application/x-opera-widgets" title="Seesu" href="http://widgets.opera.com/widget/15872/" />
