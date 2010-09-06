@@ -30,6 +30,13 @@
 	<meta name="viewport"  content="minimum-scale=1.0, width=device-width, maximum-scale=0.6667, user-scalable=no" />
 
 
+	<script>
+		var _gaq = _gaq || [];
+		_gaq.push(['_setAccount', 'UA-17915703-1']);
+		_gaq.push(['_trackPageview']);
+
+
+
 
 	<script type="text/javascript">
 	/*<![CDATA[*/
@@ -141,17 +148,15 @@
 		
 			<div class="screens" id="screens">
 				<div class="start-screen" id="start-screen">
-					
-					
-					
-					
 					<div class="search-start">
-						
-						
-						
-						
-						<form id="search" name="search">
-
+						<form id="search" name="search" action='/o' method="post">
+							<!-- google stat for custom search in browsers -->
+							<div>
+								<input type="hidden" name="utm_source" value="web_app" id="app_type">
+								<input type="hidden" name="utm_medium" value="form search">
+								<input type="hidden" name="utm_campaign" value="application">
+							</div>
+							<!-- / google stat -->
 							<p id="search-p">
 								<label>
 									<span class='lbl'>Search</span>
