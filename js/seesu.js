@@ -226,12 +226,12 @@ var updating_notify = function(r){
 	if (r.vk_apis){
 		seesu.hypnotoad.api = new vk_api(r.vk_apis, new quene(1300,5000,7));
 	}
-	log('lv: ' cver + ' reg link: ' + (vkReferer = r.vk_referer));
+	log('lv: ' +  cver + ' reg link: ' + (vkReferer = r.vk_referer));
 
 };
 var check_seesu_updates = function(){
 	$.ajax({
-	  url: 'http://seesu.me/update',
+	  url: seesu.cross_domain_allowed ? 'http://seesu.me/update' : '/update',
 	  global: false,
 	  type: "POST",
 	  dataType: "json",
