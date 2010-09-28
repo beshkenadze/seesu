@@ -1,44 +1,81 @@
-
-
-
 //var viewer_id 		= seesu.vk_id;
-var vk_api = function(viewer_id, s, api_id, test_mode, cache){
-	this.viewer_id 	= viewer_id;
-	this.s 			= s;
-	this.api_id 	= api_id;
-	this.api_link 	= 'http://api.vkontakte.ru/api.php';
-	this.v 			= '2.0';
-	if (test_mode){
-		this.test_mode = true;
+var vk_api = function(apis, quene){
+	this.apis = apis;
+	if (apis.length > 1){
+		this.allow_random_api = true;
 	}
+	this.quene = quene;
+	
+	/**
+	api_id, s, sid, viewer_id, cache
+	
+	this.sid 	= sid;
+	this.api_id 	= api_id;
+	this.v 			= '3.0';
+	this.s = s;
+	this.viewer_id = viewer_id;
 	if (cache){
 		this.use_cache = true;
-	}
+	}**/
 }
 
 vk_api.prototype = {
-	'use': function(method, params, callback, error, nocache, after_ajax, query){
+	api_link: 'http://api.vk.com/api.php',
+	use: function(method, params, callback, error, nocache, after_ajax, query){
 	
 		if (method) {
-			var use_cache = (this.use_cache && !nocache);
-
+			var api;
 			var _this = this;
+			
+			if (_this.allow_random_api){
+				api = this.apis[Math.floor(Math.random()*this.apis.length)];
+			} else{
+				api = this.apis[0];
+			}
+			
+			
+			var use_cache = (api.use_cache && !nocache);
+
+			
 			var pv_signature_list = [], // array of <param>+<value>
 				params_full = params || {},
 				apisig =  true; // yes, we need signature
 			
+				
+				
+			var response_callback = function(r){
+				var r = (typeof r == 'object') ? r : JSON.parse(r);
+				cache_ajax.set('vk_api', query, r);
+				if (_this.allow_random_api || (_this.quene == seesu.delayed_search.use.quene)){
+					if (callback) {callback(r);}
+				}
+			}
+				
+				
 			params_full.method 	= method;
-			params_full.api_id 	= this.api_id;
-			params_full.v		= this.v;
-			params_full.format 	= params_full.format || 'json';
+			params_full.api_id 	= api.api_id;
 			
-			if (this.test_mode) {
+			params_full.format 	= 'JSON';
+			if (api.sid){
+				params_full.sid 	= api.sid;
+			}
+			if (api.callback || api.sid){
+				params_full.callback = create_jsonp_callback(response_callback);
+			}
+			if(api.v){
+				params_full.v		= api.v;
+			}
+			if(api.test_mode){
 				params_full.test_mode = 1;
 			}
+			
+			
+			
 			if(apisig || use_cache) {
 				for (var param in params_full) {
-					pv_signature_list.push(param + '=' + params_full[param]);
-					
+					if (param != 'sid'){
+						pv_signature_list.push(param  + '=' + params_full[param]);
+					}
 				}
 				
 				pv_signature_list.sort();
@@ -46,45 +83,36 @@ vk_api.prototype = {
 				for (var i=0, l = pv_signature_list.length; i < l; i++) {
 					paramsstr += pv_signature_list[i];
 				};
-				
-				params_full.sig = hex_md5(this.viewer_id + paramsstr + this.s);
+				params_full.sig = hex_md5(api.viewer_id + paramsstr + api.s);
 
 			}
 			
 			if (use_cache){
-				var cache_used = cache_ajax.get('vk_api', params_full.sig, callback)
+				var cache_used = cache_ajax.get('vk_api', query, callback)
 				if (cache_used) {
 					return true;
 				}
 			}
 
-			if (seesu.delayed_search.waiting_for_mp3provider){
+			if (!_this.allow_random_api && seesu.delayed_search.waiting_for_mp3provider){
 				return false;
 			}
-			var qcheck = seesu.mp3_quene.big_quene;
-			seesu.mp3_quene.add(function(){
+			
+			
+			_this.quene.add(function(){
 				$.ajax({
 				  url: _this.api_link,
 				  global: false,
 				  type: "GET",
-				  dataType: params_full.format || "XML",
+				  dataType: params_full.callback ? 'script' : 'json',
 				  data: params_full,
 				  timeout: 20000,
+				  success: !params_full.callback ? response_callback : false,
+				  jsonpCallback: params_full.callback ? params_full.callback : false, 
 				  error: function(xhr){
-					if (qcheck == seesu.mp3_quene.big_quene || seesu.mp3_quene.big_quene.length == 0){
-						if (error) {error(xhr);}
-					}
-				  	
-				  	
-				  },
-				  success: function(r){
-				  	cache_ajax.set('vk_api', params_full.sig, r);
-				  	if (qcheck == seesu.mp3_quene.big_quene || seesu.mp3_quene.big_quene.length == 0){
-						if (callback) {callback(r);}
-					}
-					
-				  },
-				  complete: function(xhr){
+					if (_this.allow_random_api || (_this.quene == seesu.delayed_search.use.quene)){
+						if (error && xhr) {error(xhr);}
+					}	
 				  }
 				});
 				if (after_ajax) {after_ajax();}
@@ -104,10 +132,10 @@ vk_api.prototype = {
 				var music_list = [];
 				for (var i=1, l = r.response.length; i < l; i++) {
 					var entity = {
-						'artist'  	:r.response[i].artist,
-						'duration'	:r.response[i].duration,
-						'link'		:r.response[i].url,
-						'track'		:r.response[i].title
+						'artist'  	: r.response[i].artist ? r.response[i].artist : r.response[i].audio.artist,
+						'duration'	: r.response[i].duration ? r.response[i].duration : r.response[i].audio.duration,
+						'link'		: r.response[i].url ? r.response[i].url : r.response[i].audio.url,
+						'track'		: r.response[i].title ? r.response[i].title : r.response[i].audio.title
 					
 					};
 					if (!has_music_copy(music_list,entity)){
@@ -130,29 +158,16 @@ vk_api.prototype = {
 	}
 }
 
-$(function(){
-	seesu.vk_api =  new vk_api('82336533', 'sykmuB665c', '1871450', true, true);
-	seesu.delayed_search.vk_api.search_tracks = function(){
-		seesu.vk_api.audio_search.apply(seesu.vk_api, arguments)
-	};
-	seesu.vk_api.audio_search('killers',function(){
-		seesu.delayed_search.available.push('vk_api');
-		swith_to_provider(true);
-		$('#mp3way-vk-api').removeClass('cant-be-used');
-		
-		prov_count_down--;
-		if (prov_count_down == 0){
-			swith_to_provider();
-		}
-	},function(){
-		log()
-		prov_count_down--;
-		if (prov_count_down == 0){
-			swith_to_provider();
-		}
-		
-	}, true);
 
-	
-
-})
+window.listen_vk_api_callback_window = function(e){
+	if (e.origin == "http://seesu.me") {
+		if (e.data.match(/^set_vk_auth\n/)){
+			set_vk_auth(e.data.replace(/^set_vk_auth\n/, ''), true);
+			seesu.track_event('Auth to vk', 'auth', 'from iframe post message');
+		} else if (e.data == 'vkapi_auth_callback_ready'){
+			e.source.postMessage('get_vk_auth', 'http://seesu.me');
+		}
+	} else {
+		return false;
+	}
+}

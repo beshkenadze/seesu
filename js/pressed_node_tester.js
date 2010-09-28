@@ -2,72 +2,66 @@ var test_pressed_node = function(original_node, mouseup){
 	var node = original_node;
   	var class_name = node.className;
 	var clicked_node = $(original_node);
-	if (!mouseup) {
+	
 		if(clicked_node.is('a')) {
-		  if (class_name.match(/song/)){
-			return seesu.player.song_click(clicked_node);
-		  }
 		  if (class_name.match(/download-mp3/)){
 			widget.openURL(node.href);
 			return false;
 		  }
-		  else if (class_name.match(/waiting-full-render/)){
-			if (seesu.player.wainter_for_play) {seesu.player.wainter_for_play.removeClass('marked-for-play');}
-			clicked_node.data('want_to_play', seesu.player.want_to_play += 1).addClass('marked-for-play');
-			seesu.player.wainter_for_play = clicked_node;
+		  else if (class_name.match(/vk-reg-ref/)){
+			widget.openURL(vkReferer || 'http://vk.com/reg198193');
+			seesu.track_event('Links', 'vk registration');
 			return false;
 		  }
-		  else if (class_name.match(/track-zoomin/)){
-			$(document.body).addClass('track-zoomed')
-		  }
-		  else if (class_name.match(/track-zoomout/)){
-			$(document.body).removeClass('track-zoomed')
-		  }
-		  else if (class_name.match(/vk-reg-ref/)){
-			widget.openURL(vkReferer);
+		  else if (class_name.match(/sign-in-to-vk/)){
+		  	if (seesu.cross_domain_allowed){
+				clicked_node.parent().parent().toggleClass('want-to-sign-in-to-vk');
+			} else{
+				if (!clicked_node.data('popup_listening')){
+					addEvent(window, "message", listen_vk_api_callback_window);
+					clicked_node.data('popup_listening', true)
+				}
+				var vkdomain = class_name.match(/sign-in-to-vk-ru/) ? 'vkontakte.ru' : 'vk.com';
+				window.open('http://' + vkdomain + '/login.php?app=1915003&layout=openapi&settings=8' + '&channel=http://seesu.me/vk_auth.html');
+				seesu.track_event('Auth to vk', 'start');
+			}
+			
 			return false;
 		  }
 		  else if (class_name.match(/flash-s$/)){
 			widget.openURL('http://www.macromedia.com/support/documentation/en/flashplayer/help/settings_manager04.html');
-			return false;
-		  }
-		  else if (class_name.match(/promo-twitter/)){
-			var tweet_text = "Seesu plays last.fm for free and lets me to download tracks #seesu http://bit.ly/4s6CKa";
-			if (seesu.player.current_artist) {tweet_text += " Now I'm listening «" + seesu.player.current_artist + "»" };
-			widget.openURL( 'http://twitter.com/home/?status=' + encodeURIComponent(tweet_text));
-			return false;
-		  }
-		  else if (class_name.match(/c2w-twitter/)){
-			widget.openURL( 'http://bit.ly/aOtxrI');
-			return false;
-		  }
-		  else if (class_name.match(/c2w-widget-rating/)){
-			widget.openURL('http://b23.ru/ep3a');
+			seesu.track_event('Links', 'flash security');
 			return false;
 		  }
 		  else if (class_name.match(/\bartist\b[^\-]/)){
 			artist_name = decodeURIComponent(clicked_node.data('artist'));
-			set_artist_page(artist_name);
+			show_artist(artist_name);
+			seesu.track_event('Artist navigation', 'artist', artist_name);
 			return false;
 		  }
 		  else if (class_name.match(/music-tag/)){
 			tag_name = decodeURIComponent(clicked_node.data('music_tag'));
-			render_tracks_by_artists_of_tag(tag_name);
+			show_tag(tag_name);
+			seesu.track_event('Artist navigation', 'tag', tag_name);
 			return false;
 		  }
 		  else if (class_name.match(/bbcode_artist/)){
 			
 			artist_name = decodeURIComponent(clicked_node.attr('href').replace('http://www.last.fm/music/','').replace('+', ' '));
-			set_artist_page(artist_name);
+			show_artist(artist_name);
+			seesu.track_event('Artist navigation', 'bbcode_artist', artist_name);
 			return false;
 		  }
 		  else if (class_name.match(/bbcode_tag/)){
 			tag_name = decodeURIComponent(clicked_node.attr('href').replace('http://www.last.fm/tag/','').replace('+', ' '));
-			render_tracks_by_artists_of_tag(tag_name);
+			show_tag(tag_name);
+			seesu.track_event('Artist navigation', 'bbcode_tag', tag_name);
 			return false;
 		  }
 		  else if (class_name.match(/similar-artists/)){
-			render_tracks_by_similar_artists(clicked_node.data('artist'));
+		  	var artist = clicked_node.data('artist');
+			render_tracks_by_similar_artists(artist);
+			seesu.track_event('Artist navigation', 'similar artists to', artist);
 		  }
 		  else if (class_name.match(/trackbutton/)){
 			clicked_node.parent().toggleClass('tb-window');
@@ -76,6 +70,8 @@ var test_pressed_node = function(original_node, mouseup){
 			clicked_node.parent().toggleClass('want-to-select-mp3-search');
 		  }
 		  else if (class_name.match(/open-external-playlist/)){
+		  	
+			make_external_playlist();
 			if (seesu.player.current_external_playlist.result) {
 				widget.openURL(
 					'http://seesu.me/generated_files/seesu_playlist.m3u?mime=m3u&content=' + escape(seesu.player.current_external_playlist.result)
@@ -85,21 +81,19 @@ var test_pressed_node = function(original_node, mouseup){
 			return false
 		  }
 		  else if (class_name.match(/seesu-me-link/)){
-		  	widget.openURL('http://seesu.me/')
+		  	widget.openURL(node.href)
 		  	return false;
 		  }
-		 
+		  else if (class_name.match(/hint-query/)){
+		  	var query = clicked_node.text();
+		  	search_input.val(query);
+			input_change(search_input[0]);
+		  	clicked_node.text(seesu.popular_artists[(Math.random()*10).toFixed(0)]);
+		  	seesu.track_event('Navigation', 'hint artist');
+		  	return false;
+		  }
 		}  else if ((node.nodeName == 'INPUT')) {
-			if (class_name.match(/flash-mess-switch/)) {
-				if(clicked_node.attr('checked')) {
-					w_storage('flash_internet', 'true', true);
-					$(document.body).addClass('flash-internet');
-				} else {
-					w_storage('flash_internet', '', true);
-					$(document.body).removeClass('flash-internet');
-				}
-			} 
-			else if (class_name.match(/tb-mess-wrap-close/)){
+			if (class_name.match(/tb-mess-wrap-close/)){
 				clicked_node.parents('li').removeClass('tb-window');
 			}
 			else if(class_name.match(/mp3-search-switch-close/)){
@@ -133,11 +127,6 @@ var test_pressed_node = function(original_node, mouseup){
 				w_storage('lfm_scrobbling_enabled', '', true);
 				lfm_scrobble.scrobbling = false;
 				
-			}else if (class_name.match(/mp3-audme/)){
-				$(document.body).removeClass('vk-needs-login');
-				seesu.delayed_search.switch_to_audme();
-				return false;
-				
 			}else if (class_name.match(/mp3-vk($| )/)){
 				if (seesu.vk_logged_in){
 					seesu.delayed_search.switch_to_vk()
@@ -154,37 +143,47 @@ var test_pressed_node = function(original_node, mouseup){
 				return false
 			}
 		}
-	} else{
+	
 		if ((node.nodeName == 'IMG') && class_name.match(/pl-control/)){
 			var class_name = node.parentNode.className;
 			if (class_name.match(/pause/)){
 				seesu.player.set_state('pause');
+				seesu.track_event('Controls', 'pause', mouseup ? 'mouseup' : '');
 				return false; 
 			} 
 			else if (class_name.match(/play$/)){
 				var current_state = seesu.player.get_state();
 				if (current_state == 'playing') {
 					seesu.player.set_state('pause');
+					
+					seesu.track_event('Controls', 'pause', mouseup ? 'mouseup' : '');
+					
 				} else {
 					seesu.player.set_state('play');
+					
+					seesu.track_event('Controls', 'play', mouseup ? 'mouseup' : '');
+					
 				}
 				
 				return false; 
 			}
 			else if (class_name.match(/stop/)){
 				seesu.player.set_state('stop');
+				seesu.track_event('Controls', 'stop', mouseup ? 'mouseup' : '');
 				return false; 
 			}
 			else if (class_name.match(/play_prev/)){
 				if(seesu.player.current_song) {seesu.player.switch_to('prev');}
+				seesu.track_event('Controls', 'prev', mouseup ? 'mouseup' : '');
 				return false;
 			}
 			else if (class_name.match(/play_next/)){
 				if(seesu.player.current_song) {seesu.player.switch_to('next');}
+				seesu.track_event('Controls', 'next', mouseup ? 'mouseup' : '');
 				return false;
 			}
 		  
 		}
-	}
+	
 	
 }

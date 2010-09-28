@@ -1,46 +1,54 @@
 $(function() {
-  if (lfm_auth.sk && !lfm_scrobble.s) {lfm_scrobble.handshake();}
-  if (!location.protocol.match(/http/)) {check_seesu_updates();}
+  if (seesu.cross_domain_allowed && lfm_auth.sk && !lfm_scrobble.s) {lfm_scrobble.handshake();}
+  check_seesu_updates();
   seesu.vk_id = w_storage('vkid');
   $(document).click(function(e) {
 	return test_pressed_node(e.target)
   });
 	flash_secur = $('#flash-secur');
 
-	
+	$('#hint-query').text(seesu.popular_artists[(Math.random()*10).toFixed(0)])
 	var wgt_urli = $('#widget-url').val(location.href.replace('index.html', ''));
-	
+	window.seesu_me_link = $('#seesu-me-link');
+	seesu_me_link.attr('href', seesu_me_link.attr('href').replace('seesu%2Bapplication', seesu.env.app_type))
 
   
   
 	//see var at top
 	window.slider = document.getElementById('slider');
-	window.srnav = document.getElementById('search_result_nav');
 	window.startlink = document.getElementById('start_search');
 	startlink.onclick = function(){
-		slider.className = "show-start";
-		searchfield.focus();
+		
+		seesu.ui.views.show_start_page(true, true);
 	};
-	window.searchres = document.getElementById('search_result');
-	window.nav_artist_page = document.getElementById('nav_artist_page');
-	window.trk_page_nav = document.getElementById('nav_tracks_page');
 	
-	srnav.onclick = function(){
-		slider.className = "show-search show-search-results";
-	};
+	window.nav_playlist_page = document.getElementById('nav_playlist_page');
+	$(nav_playlist_page).parent().click(function(){
+		var current_page = slider.className;
+		$(slider).removeClass('show-zoom-to-track');
+		seesu.track_event('Navigation', 'playlist', current_page);
+	})
+	window.nav_track_zoom = $('#nav_track_zoom');
+	window.trk_page_nav = document.getElementById('nav_tracks_page');
+	search_nav.click(function(){
+		seesu.ui.views.show_search_results_page(true, true);
+	});
 	window.export_playlist = $('#open-external-playlist');
 	seesu.start_screen = $('#start-screen');
 	
-	artsHolder	= $('#artist-holder');
-	artsImage	= $('img.artist-image',artsHolder);
-	artsBio		= $('.artist-bio',artsHolder);
-	artsTracks	= $('.tracks-for-play',artsHolder);
-	art_tracks_w_counter = $('#tracks-waiting-for-search')
-	artsName	= $('#artist-name');
-	playlist_panel = $('#play-list-panel');
+	window.artsHolder	= $('#artist-holder');
+	window.a_info		= $('.artist-info', artsHolder)
+	window.artsName		= $('.artist-name',  a_info);
+	window.artsImage	= $('img.artist-image',a_info);
+	window.artsBio		= $('.artist-bio',a_info);
+	window.arst_meta_info = $('.artist-meta-info', a_info);
 	
-	arst_meta_info = $('#artist-meta-info');
-	search_nav = $('#search-nav');
+	window.artsTracks	= $('.tracks-for-play',artsHolder);
+	window.art_tracks_w_counter = $('#tracks-waiting-for-search');
+	
+	window.track_panel = $('#track-panel');
+	
+	
 	window.vk_save_pass = $('#vk-save-pass');
 	
 	  
@@ -63,11 +71,7 @@ $(function() {
 		
 	});
 	
-	if (w_storage('flash_internet') == 'true') {
-		$(document.body).addClass('flash-internet');
-		flash_settings.attr('checked', 'checked');
-	}
-	
+
 	
 	
 	var vk_auth = $('.vk-auth').submit(function(){
@@ -83,14 +87,8 @@ $(function() {
 			w_storage('vk_save_pass', '', true);
 			seesu.vk.save_pass = false;
 		}
-			
-			
-		if (true) {
-			vk_send_captcha($('#vk-captcha_key',_this).val(),email,pass);
-		} else {
-			vk_login(email,pass);
-		}
-		
+		vk_send_captcha($('#vk-captcha_key',_this).val(),email,pass);
+
 		return false;
 	});
 	captcha_img = $('.vk-captcha-context img',vk_auth);

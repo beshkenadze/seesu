@@ -21,7 +21,15 @@ var html5_p = function(player_holder,volume){
 			}
 			return pos
 		}
-		
+		this.before_finish = function(){
+			this.before_finish_fired = true;
+			log('before finish')
+			if (seesu.player.current_next_song && !seesu.player.current_next_song.data('mp3link')){
+				get_track(seesu.player.current_next_song, false, true);
+				
+			}
+			
+		}
 		
 		
 		this.track_progress_total = $('<div class="track-progress"></div>').click(function(e){
@@ -30,9 +38,10 @@ var html5_p = function(player_holder,volume){
 			var new_play_position_factor = pos/_this.track_progress_width;
 			_this.set_new_position(new_play_position_factor);
 			
-		}).appendTo(player_holder);
+		}).prependTo(player_holder);
 		this.track_progress_load = $('<div class="track-load-progress"></div>').appendTo(this.track_progress_total);
 		this.track_progress_play = $('<div class="track-play-progress"></div>').appendTo(this.track_progress_total);
+		
 		this.track_node_text = $('<div class="track-node-text"><div>').appendTo(this.track_progress_total);
 		
 		
@@ -44,7 +53,7 @@ var html5_p = function(player_holder,volume){
 			seesu.player.call_event(VOLUME, new_volume_factor * 100);
 			
 			_this.volume_state_position.css('width', pos + 'px')
-		}).appendTo(playlist_panel);
+		}).prependTo(track_panel);
 		this.volume_state_position = $('<div class="volume-state-position"></div>').css('width',((volume * 50)/100) + 'px' ).appendTo(this.volume_state);
 		
 	}
@@ -64,17 +73,18 @@ html5_p.prototype = {
 			this.track_progress_play[0].style.width = this.track_progress_load[0].style.width = '0';
 		}
 		
-		var parent_node = node.parent()
+		var parent_node = node.parent();
+		/**
 		var top = parent_node.position().top;
-		var tp_style = '.player-holder {top: ' + top + 'px}';
 		
 		
 		this.player_holder[0].style.top = top + 'px';
-
+**/
 		
 		if (this.track_progress_total){
-			this.track_progress_width = this.track_progress_total.outerWidth();
-			this.track_node_text.html(node.html());
+			this.track_progress_width = parent_node.outerWidth() - 12;
+			//this.track_node_text.html(node.html());
+			//log('width: '  + this.track_progress_width);
 		}
 		
 		this.play_song_by_url(node.data('mp3link'), node.data('duration'));
@@ -117,7 +127,9 @@ html5_p.prototype = {
 			}*/
 		},
 		"play_song_by_url" : function(url){
+			this.before_finish_fired = false;
 			var _this = this;
+			
 			if (this.current_song){
 				this.stop();
 			}
@@ -129,16 +141,17 @@ html5_p.prototype = {
 			addEvent(this.current_song, 'stop', function(){_this.html5_p_events.stopped(_this)});
 			addEvent(this.current_song, 'ended', function(){_this.html5_p_events.finished(_this)});
 			addEvent(this.current_song, 'timeupdate', function(){
-				_this.html5_p_events.progress_playing(_this, _this.current_song.currentTime, _this.current_song.duration)
+				_this.html5_p_events.progress_playing(_this, _this.current_song.currentTime, _this.current_song.duration);
 			});
 			addEvent(this.current_song, 'progress', function(e){
-				_this.html5_p_events.progress_loading(_this, e.loaded, e.total) 
-				log('progress: ' + e.loaded + ' ' + e.total)
+				if (e.loaded && e.total){
+					_this.html5_p_events.progress_loading(_this, e.loaded, e.total);
+				}
 			});
 			addEvent(this.current_song, 'canplaythrough', function(e){
 				setTimeout(function(){
 					if (_this.current_song.buffered.length && (_this.current_song.buffered.length > 0)){
-						_this.html5_p_events.progress_loading(_this, _this.current_song.buffered.end(0), _this.current_song.duration)
+						_this.html5_p_events.progress_loading(_this, _this.current_song.buffered.end(0), _this.current_song.duration);
 					}
 				},300)
 			});
@@ -194,13 +207,21 @@ html5_p.prototype = {
 			
 			var current = Math.round((progress_value/total) * _this.track_progress_width);
 			
-			_this.track_progress_play[0].style.width = current + 'px'
+			_this.track_progress_play[0].style.width = current + 'px';
+			if (!_this.before_finish_fired){
+				if (total - progress_value < 20){
+					if (_this.before_finish){
+						_this.before_finish();
+					}
+				}
+			}
+			
 		},
 		"progress_loading": function(_this, progress_value, total){
 			if (_this.ignore_position_change) {return false;}
 			var current = Math.round((progress_value/total) * _this.track_progress_width);
 			
-			_this.track_progress_load[0].style.width = current + 'px'
+			_this.track_progress_load[0].style.width = current + 'px';
 		}
 	}
 	

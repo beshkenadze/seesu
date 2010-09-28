@@ -21,7 +21,15 @@ var sm2_p = function(player_holder,volume,sm2, iframe){
 			}
 			return pos
 		}
-		
+		this.before_finish = function(){
+			this.before_finish_fired = true;
+			log('before finish')
+			if (seesu.player.current_next_song && !seesu.player.current_next_song.data('mp3link')){
+				get_track(seesu.player.current_next_song, false, true);
+				
+			}
+			
+		}
 		
 		
 		this.track_progress_total = $('<div class="track-progress"></div>').click(function(e){
@@ -30,7 +38,8 @@ var sm2_p = function(player_holder,volume,sm2, iframe){
 			var new_play_position_factor = pos/_this.track_progress_width;
 			_this.set_new_position(new_play_position_factor);
 			
-		}).appendTo(player_holder);
+		}).prependTo(player_holder);
+		
 		this.track_progress_load = $('<div class="track-load-progress"></div>').appendTo(this.track_progress_total);
 		this.track_progress_play = $('<div class="track-play-progress"></div>').appendTo(this.track_progress_total);
 		this.track_node_text = $('<div class="track-node-text"><div>').appendTo(this.track_progress_total);
@@ -43,7 +52,7 @@ var sm2_p = function(player_holder,volume,sm2, iframe){
 			seesu.player.call_event(VOLUME, new_volume_factor * 100);
 			
 			_this.volume_state_position.css('width', pos + 'px')
-		}).appendTo(playlist_panel);
+		}).prependTo(player_holder);
 		this.volume_state_position = $('<div class="volume-state-position"></div>').css('width',((volume * 50)/100) + 'px' ).appendTo(this.volume_state);
 		
 	}
@@ -87,16 +96,17 @@ sm2_p.prototype = {
 		}
 		
 		var parent_node = node.parent()
+		/**
 		var top = parent_node.position().top;
-		var tp_style = '.player-holder {top: ' + top + 'px}';
 		
 		
 		this.player_holder[0].style.top = top + 'px';
-
+**/
 		
 		if (this.track_progress_total){
-			this.track_progress_width = this.track_progress_total.outerWidth();
-			this.track_node_text.html(node.html());
+			this.track_progress_width = parent_node.outerWidth() - 12;
+			//this.track_node_text.html(node.html());
+			//log('width: '  + this.track_progress_width)
 		}
 		
 		this.play_song_by_url(node.data('mp3link'), node.data('duration'));
@@ -109,6 +119,7 @@ sm2_p.prototype = {
 		this.sm2_actions.set_new_position.apply(this, arguments);
 	},
 	"play_song_by_url": function(){
+		this.before_finish_fired = false;
 		this.sm2_actions.play_song_by_url.apply(this, arguments);
 	},
 	'play': function(){
@@ -247,7 +258,10 @@ sm2_p.prototype = {
 				
 				var current = Math.round((progress/total) * _this.track_progress_width);
 				
-				_this.track_progress_play[0].style.width = current + 'px'
+				_this.track_progress_play[0].style.width = current + 'px';
+				
+
+				
 			},
 			"progress_loading": function(_this, progress_value, total){
 				if (_this.ignore_position_change) {return false;}
@@ -256,7 +270,17 @@ sm2_p.prototype = {
 				
 				var current = Math.round((progress/total) * _this.track_progress_width);
 				
-				_this.track_progress_load[0].style.width = current + 'px'
+				_this.track_progress_load[0].style.width = current + 'px';
+				if (!_this.before_finish_fired){
+					if (total - progress_value < 20){
+						if (_this.before_finish){
+							_this.before_finish();
+						}
+					}
+				}
+
+				
+				
 			}
 		}
 	  :

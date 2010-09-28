@@ -1,8 +1,12 @@
-
-.player-holder .play-controls{
+.tracks-magic{
+	position:relative;
+	padding-top:1px;
+}
+.tracks-for-play .play-controls{
 	position:absolute;
-	right:55px;
+	right:115px;
 	margin-top:5px;
+	top:0;
 }
 
 
@@ -18,6 +22,7 @@
 		padding:1px 0 0 1px;
 		width:19px;
 		height:19px;
+		border:0  !important;
 		background-repeat:no-repeat;
 		}
 		.play-control:hover{
@@ -42,13 +47,12 @@
 a.song{
 	padding:3px 1px 0;
 	
-	border:1px solid transparent;
+	border:0  !important;
 	border-radius:4px;
 	}
 a.song:hover{
 	color:#ffffff;
 	background:#595959;
-	border-color:transparent;
 }
 a.search-mp3{
 	text-decoration:blink;
@@ -58,8 +62,7 @@ a.track-node{
 	display:block;
 	padding:6px 6px;
 	
-	margin-right:5px;
-	border:1px solid transparent;
+	border:0 !important;
 	overflow:hidden;
 	}
 	.song-duration{
@@ -83,17 +86,17 @@ a.waiting-full-render.marked-for-play{
 a.download-mp3{
 	text-decoration:none;
 	padding:3px 5px 1px;
-	margin-left:3px;
-	border-bottom:0;
-	float:right;
+	border-bottom:0  !important;
+	position:absolute;
+	right:0;
+	margin-top:3px;
 	}
 a.download-mp3:hover{
 	background:#666;
 	color:#ffffff;
 	}
-.active-play
-a.song{
-	cursor:default;
+.active-play a.song{
+	background:transparent;
 	
 }
 	.player-played
@@ -127,69 +130,18 @@ a.song{
 	.track-zoomout{
 		left:-55px;
 	}
-.active-play .track-zoomin{
-	display:block;
-}
-.track-zoomed {
-	
-}
-	.track-zoomed .active-play .track-zoomin{
-		display:none;
-	}
-	.track-zoomed .track-zoomout{
-		display:block;
-	}
-	.track-zoomed .tracks-for-play>ul>li{
-		
-	}
-	.track-zoomed .tracks-for-play li.active-play{
-		display:block;
-	}
-
-	.track-zoomed .play-control{
-		display:inline-block;
-		}
-
-	.player-paused.track-zoomed  #play-list-holder .player-holder,
-	.player-played.track-zoomed  #play-list-holder .player-holder,
-	.player-played.track-zoomed  #play-list-holder .player-holder{
-		left:0;
-		
-		}
-	.track-zoomed .active-play .track-buttons{
-		display:block;
-
-		}
-	.track-zoomed .tracks-for-play .active-play{
-
-			}
-
-.tracks-for-play .active-play .play-controls{
-	display:block;
-	}
-.tracks-for-play .play-controls div{
-
-	}
-.tracks-for-play .active-play{
-	position:relative;
-	z-index:2;
-	}
-
-.tracks-for-play .play-controls{
-	display:none;
-	position:absolute;
-	top: -2px;
-	left:-31px;
-}
 
 
 
 
 
-.player-holder
-#flash-secur{
-	position:relative;
-}
+
+
+
+
+
+
+
 
 .scrobbling-button>a{
 background:#d8404c;
@@ -216,7 +168,10 @@ p.internet-flash-settings{
 	display:block;
 }
 
-
+.flash-internet
+#flash-secur{
+	display:none;
+}
 
 
 #message-flash-secur{
@@ -239,36 +194,32 @@ p.internet-flash-settings{
 
 
 
-#play-list-holder .player-holder{
-	left:0;
-	z-index:2;
-	right:42px;
-	position:absolute;
-}
 
 
-.player-holder{
-	height:20px;
-}
+
 #i_f_sm2{
-	width:20px;
-	top:0;
-	left:0;
-	height:20px;
+	width:30px;
+	
+	left:19px;
+	z-index:10;
+	height:30px;
 	border:0;
+	bottom:50px;
 	position:absolute;
 }
 #i_f_sm2.sm-inited{
 	left:-250px;
+	z-index:-10;
 }
 .track-progress{
 	background:#505050;
 	position:absolute;
 	overflow:hidden;
 	max-width:100%;
-	padding:6px;
+	padding:0;
 	left:0;
 	right:0;
+	height:15px;
 	border: 1px solid transparent;
 
 	}
@@ -283,6 +234,7 @@ p.internet-flash-settings{
 		}
 	.track-play-progress{
 		position:absolute;
+		cursor:pointer;
 		width:0;
 		left:0;
 		top:0;
