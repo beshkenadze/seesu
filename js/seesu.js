@@ -63,12 +63,99 @@ window.seesu =  {
 		nav: null
 	  },
 	  ui: {
-		allow_mp3_downloading: true
-		
+		allow_mp3_downloading: true,
+		views: {
+			browsing:{},
+			playing:{},
+			get_search_rc: function(){
+				if (this.browsing.search_results){
+					return this.browsing.search_results;
+				} else {
+					return this.browsing.search_results = $('<div class="search-results-container current-src"></div').appendTo(searchres);
+				}
+			},
+			get_playlist_c:function(){
+				if (this.browsing.playlist){
+					return this.browsing.playlist;
+				} else {
+					return this.browsing.playlist = $('<ul class="tracks-c current-tracks-c"></ul>').appendTo(artsTracks);
+				}
+			},
+			snap_shot: function(song_nodes){
+				if (song_nodes == this.playing.song_nodes){
+					return true;
+				} else{
+					this.playing = this.browsing;
+					this.browsing = {};
+				}
+				
+			},
+			snap_recovery: function(){
+				
+			},
+			hide_playing: function(){
+				
+			},
+			hide_browsing: function(){
+				
+			},
+			show_now_playing: function(){
+				var current_page = slider.className;
+				slider.className = seesu.now_playing.nav;
+				seesu.track_event('Navigation', 'now playing', current_page);
+			},
+			show_start_page: function(focus_to_input, log_navigation){
+				var _s;
+				if (log_navigation){
+					_s = slider.className;
+				}
+				slider.className = "show-start";
+				if (focus_to_input){
+					search_input[0].focus();
+					search_input[0].select();
+				}
+				if (log_navigation){
+					seesu.track_event('Navigation', 'start page', _s);
+				}
+			},
+			show_search_results_page: function(focus_to_input, log_navigation){
+				var _s;
+				
+				if (log_navigation){
+					_s = slider.className;
+				}
+				
+				slider.className = "show-search show-search-results";
+				
+				if (focus_to_input){
+					search_input[0].focus();
+					search_input[0].select();
+				}
+				
+				if (log_navigation){
+					seesu.track_event('Navigation', 'search results', _s);
+				}
+			},
+			show_playlist_page: function(playlist_title, playlist_type, with_search_results_link){
+				if (playlist_title){
+					$(nav_playlist_page).text(this.browsing.playlist_title = playlist_title);
+				}
+				if (playlist_type){
+					this.browsing.playlist_type = seesu.ui.playlist_type = playlist_type;
+				}
+				if (with_search_results_link) {
+					this.browsing.nav = seesu.now_playing.nav = slider.className = 'show-full-nav show-player-page';
+				} else {
+					this.browsing.nav = seesu.now_playing.nav = slider.className = 'show-player-page';
+				}
+			}
+		}
 	  },
 	  xhrs: {},
+	  soundcloud_quene: new funcs_quene(200, 1000 , 7),
 	  hypnotoad: {
 	  	vk_api: false,
+	  	search_soundcloud: soundcloud_search,
 	  	search_tracks:function(){
 	  		if(seesu.hypnotoad.vk_api){
 				seesu.track_event('mp3 search', 'hypnotoad');
@@ -320,6 +407,7 @@ var get_track_as_possible = function(node, order, mp3_prov_quene){
 		}
 	}
 	if (!used_successful && order == 0){
+		log('some one')
 		get_track(node, false, true);
 	}
 }
@@ -380,14 +468,16 @@ var make_tracklist_playable = function(track_nodes){
 	
 	
 };
-var make_node_playable = function(node, http_link, mp3_duration){
+var make_node_playable = function(node, music_object){
 	
 	
 	var playable_node = $(node)
 		.addClass('song js-serv')
 		.removeClass('waiting-full-render')
-		.data('mp3link', http_link)
-		.data('duration', mp3_duration)
+		.data('mp3link', music_object.link)
+		.data('not_use', false)
+		.data('duration', music_object.duration)
+		.data('music_object', music_object)
 		.unbind()
 		.click(function(){
 			seesu.player.song_click($(this));
@@ -429,12 +519,8 @@ var make_node_playable = function(node, http_link, mp3_duration){
 var render_playlist = function(vk_music_list) { // if links present than do full rendering! yearh!
 	
 
-	var ul = document.createElement("ul");
-	
-	
-	if (artsTracks) {
-		artsTracks.empty().append(ul);
-	}
+	var ul = seesu.ui.views.get_playlist_c();;
+	ul.empty();
 	if (!vk_music_list){
 		$(ul).append('<li>Nothing found</li>');
 	} else {
@@ -442,9 +528,7 @@ var render_playlist = function(vk_music_list) { // if links present than do full
 			if (seesu.start_screen){
 				$('<p></p>').attr('id', 'now-play-b').append(
 					seesu.now_playing.link = $('<a></a>').text('Now Playing').attr('class', 'js-serv').click(function(){
-						var current_page = slider.className;
-						slider.className = seesu.now_playing.nav;
-						seesu.track_event('Navigation', 'now playing', current_page);
+						seesu.ui.views.show_now_playing();
 					})
 				).appendTo(seesu.start_screen)
 
@@ -493,7 +577,7 @@ var render_playlist = function(vk_music_list) { // if links present than do full
 				.appendTo(ul);
 			
 			if (we_have_mp3links) {
-				make_node_playable(track, vk_music_list[i].link , vk_music_list[i].duration);
+				make_node_playable(track, vk_music_list[i]);
 			}
 			
 			linkNodes.push(track);
@@ -507,16 +591,14 @@ var render_playlist = function(vk_music_list) { // if links present than do full
 		return true;
 	}
 };
-var vk_track_search = function(query){
-	nav_playlist_page.innerHTML = query;
+var show_track = function(query, with_search_results){
+	
 	
 	if (seesu.delayed_search.waiting_for_mp3provider){
 		mp3_prov_quene = new funcs_quene();
 		seesu.delayed_search.we_need_mp3provider(mp3_prov_quene)
 	}
-	
-	seesu.now_playing.nav = slider.className = 'show-full-nav show-player-page';
-	seesu.ui.playlist_type = 'tracks';
+	seesu.ui.views.show_playlist_page(query, 'tracks', with_search_results);
 	var used_successful = get_all_tracks(query, render_playlist);
 	if (!used_successful && seesu.delayed_search.waiting_for_mp3provider){
 		if (mp3_prov_quene) {
@@ -568,9 +650,7 @@ var render_loved = function(user_name){
 			render_playlist(track_list);
 		}
 	});
-	$(nav_playlist_page).text('Loved Tracks');
-	seesu.now_playing.nav = slider.className = 'show-player-page';
-	seesu.ui.playlist_type = 'artists by loved';
+	seesu.ui.views.show_playlist_page('Loved Tracks', 'artists by loved');
 };
 var render_recommendations_by_username = function(username){
 	$.ajax({
@@ -592,8 +672,8 @@ var render_recommendations_by_username = function(username){
 			}
 		  }
 	});
-	$(nav_playlist_page).text('Recommendations for ' +  username);
-	seesu.now_playing.nav = slider.className = 'show-player-page';
+
+	seesu.ui.views.show_playlist_page('Recommendations for ' +  username, 'artists by recommendations');
 };
 var render_recommendations = function(){
 	lfm('user.getRecommendedArtists',{sk: lfm_auth.sk},function(r){
@@ -606,9 +686,9 @@ var render_recommendations = function(){
 			proxy_render_artists_tracks(artist_list);
 		}
 	}, false);
-	$(nav_playlist_page).text('Recommendations for you');
-	seesu.now_playing.nav = slider.className = 'show-player-page';
-	seesu.ui.playlist_type = 'artists by recommendations';
+
+	seesu.ui.views.show_playlist_page('Recommendations for you', 'artists by recommendations');
+
 };
 
 
@@ -625,11 +705,10 @@ var get_artists_by_tag = function(tag,callback){
 	}, false);
 	return true;
 };
-var render_tracks_by_artists_of_tag = function(tag){
+var show_tag = function(tag, with_search_results){
 	get_artists_by_tag(tag, proxy_render_artists_tracks);
-	$(nav_playlist_page).html('Tag: ' + tag);
-	seesu.now_playing.nav = slider.className = 'show-full-nav show-player-page';
-	seesu.ui.playlist_type = 'artists by tag';
+	seesu.ui.views.show_playlist_page('Tag: ' + tag, 'artists by tag', with_search_results);
+
 };
 
 
@@ -648,10 +727,9 @@ var get_similar_artists = function(original_artist, callback){
 };
 
 var render_tracks_by_similar_artists = function(original_artist){
-	seesu.ui.playlist_type = 'similar artists';
+	seesu.ui.views.show_playlist_page('Similar to «' + original_artist + '» artists', 'similar artists');
 	get_similar_artists(original_artist, proxy_render_artists_tracks);
-	$(nav_playlist_page).html('Similar to &laquo;' + original_artist + '&raquo; artists');
-	seesu.now_playing.nav = slider.className = 'show-full-nav show-player-page';
+	
 };
 
 
@@ -688,7 +766,7 @@ var get_artist_album_playlist = function(r){
 };
 
 var get_artist_album_info = function(artist, album, callback){
-	$(nav_playlist_page).text('(' + artist + ') ' + album );
+	
 	lfm('album.getInfo',{'artist': artist, album : album},function(r){
 		if (callback) {callback(r);}
 	});
@@ -716,9 +794,8 @@ var artist_albums_renderer = function(r, container){
 				.data('album', al_name)
 				.click(function(){
 					seesu.toogle_art_alb_container(seesu.artist_albums_container.data('albums_link'));
-					
+					seesu.ui.views.show_playlist_page('(' + artist + ') ' + album ,'album')
 					get_artist_album_info(al_artist, al_name, get_artist_album_playlist );
-					seesu.ui.playlist_type = 'album';
 					seesu.track_event('Artist navigation', 'album', al_artist + ": " + al_name);
 					return false;
 				})
@@ -829,7 +906,7 @@ var show_artist_info = function(r, ainf){
 
 };
 var update_artist_info = function(artist, a_info, not_show_link_to_artist_page){
-	if (seesu.ui.playlist_type == artist) {
+	if (seesu.player.current_artist == artist) {
 		if (seesu.ui.playlist_type == 'artist'){
 			if (seesu.player.top_tracks_link){
 				seesu.player.top_tracks_link.remove()
@@ -855,7 +932,7 @@ var update_artist_info = function(artist, a_info, not_show_link_to_artist_page){
 				.data('artist', artist)
 				.appendTo(arts_name)
 				.click(function(){
-					set_artist_page(artist);
+					show_artist(artist);
 					seesu.track_event('Artist navigation', 'top tracks', artist);
 				});
 		}	
@@ -873,7 +950,7 @@ var update_artist_info = function(artist, a_info, not_show_link_to_artist_page){
 			.appendTo(arts_name)
 		
 		$('<span class="desc-text"></span>')
-			.text(seesu.player.current_artist = artist)
+			.text(artist)
 			.appendTo(artsName);
 			
 		ainf.image.attr('src', '').attr('alt', artist);
@@ -885,17 +962,16 @@ var update_artist_info = function(artist, a_info, not_show_link_to_artist_page){
 		});
 	}
 };
-var set_artist_page = function (artist,with_search_results) {
-	if (with_search_results) {
-		seesu.now_playing.nav = slider.className = 'show-full-nav show-player-page';
-	} else {
-		seesu.now_playing.nav = slider.className = 'show-player-page';
+var show_artist = function (artist,with_search_results) {
+	
+	if (seesu.player.current_artist == artist && seesu.ui.playlist_type == 'artist') {
+		return false;
 	}
-	$(nav_playlist_page).text(artist);
+	seesu.ui.views.show_playlist_page(artist, 'artist', with_search_results);
 	getTopTracks(artist,function(track_list){
 		render_playlist(track_list);
 	});
 	lfm('artist.getInfo',{'artist': artist });
-	seesu.ui.playlist_type = 'artist';
+
 	
 };

@@ -2,7 +2,7 @@ get_all_tracks = function(trackname, callback, was_unsuccessful, hypnotoad){
 	if (seesu.delayed_search.use.quene) {seesu.delayed_search.use.quene.reset();}
 	seesu.delayed_search.tracks_waiting_for_search = 0;
 	art_tracks_w_counter.text('');
-	var s = hypnotoad ? seesu.hypnotoad.search_tracks : seesu.delayed_search.use.search_tracks;
+	var s = hypnotoad ? seesu.hypnotoad.search_soundcloud : seesu.delayed_search.use.search_tracks;
 	var used_successful = s(trackname, callback, function(){callback();}, was_unsuccessful);
 	return used_successful;
 }
@@ -15,27 +15,28 @@ get_track = function(tracknode, was_unsuccessful, hypnotoad){
 	if (!was_unsuccessful){
 		art_tracks_w_counter.text((seesu.delayed_search.tracks_waiting_for_search += 1) || '');
 	}
-	var s = hypnotoad ? seesu.hypnotoad.search_tracks : seesu.delayed_search.use.search_tracks;
-	var used_successful = s(
-		tracknode.data('artist_name') + ' - ' + tracknode.data('track_title'), 
-		function(music_list){
-			//success
-			if(tracknode.data('mp3link')){
-				return false
-			}
-			tracknode.removeClass('search-mp3');
-			var best_track = search_from_list_one_track(music_list,tracknode.data('artist_name'),tracknode.data('track_title'));
-			make_node_playable(tracknode, best_track.link, best_track.duration);
-			resort_playlist(tracknode.data('link_to_playlist'));
-			export_playlist.addClass('can-be-used');
-			art_tracks_w_counter.text((seesu.delayed_search.tracks_waiting_for_search -= 1) || '');
-		},
-		function(xhr){
-			//error
-			if(tracknode.data('mp3link')){
-				return false;
-			}
-			if (!tracknode.data('not_use')){
+	var s = hypnotoad ? seesu.hypnotoad.search_soundcloud : seesu.delayed_search.use.search_tracks;
+	var last_hypnotoad_try = false;
+	var callback_success = function(music_list){
+		//success
+		if(tracknode.data('mp3link')){
+			return false
+		}
+		tracknode.removeClass('search-mp3');
+		var best_track = get_best_track(music_list,tracknode.data('artist_name'),tracknode.data('track_title'));
+		make_node_playable(tracknode, best_track);
+		resort_playlist(tracknode.data('link_to_playlist'));
+		export_playlist.addClass('can-be-used');
+		art_tracks_w_counter.text((seesu.delayed_search.tracks_waiting_for_search -= 1) || '');
+	}
+	
+	var callback_error = function(xhr){
+		//error
+		if(tracknode.data('mp3link')){
+			return false;
+		}
+		if (!tracknode.data('not_use')){
+			var mark_and_check_next = function(){
 				tracknode.data('not_use', true);
 				if (
 					(seesu.player.current_next_song && (tracknode[0] == seesu.player.current_next_song[0])) || (seesu.player.current_prev_song && (tracknode[0] == seesu.player.current_prev_song[0]))
@@ -49,16 +50,39 @@ get_track = function(tracknode, was_unsuccessful, hypnotoad){
 						
 					}
 				}
+			}
+			
+			if (hypnotoad && hypnotoad.vk_api && !last_hypnotoad_try ){
+			
+				last_hypnotoad_try = true;
+				seesu.hypnotoad.search_tracks(
+					tracknode.data('artist_name') + ' - ' + tracknode.data('track_title'), callback_success, callback_error, 
+					was_unsuccessful,
+					function(){
+						if(tracknode.data('mp3link')){
+							return false;
+						}
+						tracknode.addClass('search-mp3');
+					}
+				)
 				
 			} else{
-				return false;
+				mark_and_check_next();
 			}
 			
 			
 			
-			tracknode.removeClass('search-mp3').addClass('search-mp3-failed').removeClass('waiting-full-render');
-			art_tracks_w_counter.text((seesu.delayed_search.tracks_waiting_for_search -= 1) || '');
-		}, 
+		} else{
+			return false;
+		}
+		
+		
+		
+		tracknode.removeClass('search-mp3').addClass('search-mp3-failed').removeClass('waiting-full-render');
+		art_tracks_w_counter.text((seesu.delayed_search.tracks_waiting_for_search -= 1) || '');
+	}
+	var used_successful = s(
+		tracknode.data('artist_name') + ' - ' + tracknode.data('track_title'), callback_success, callback_error, 
 		was_unsuccessful,
 		function(){
 			if(tracknode.data('mp3link')){
@@ -75,7 +99,7 @@ var de_html = function(html_text){
 	de_html_entity.innerHTML = html_text;
 	return de_html_entity.textContent;
 }
-search_from_list_one_track = function(array,artist,track){
+get_best_track = function(array,artist,track){
 	var best = array[0],
 	worst_pr = -7; //six steps search
 	
@@ -84,33 +108,44 @@ search_from_list_one_track = function(array,artist,track){
 			_tr = de_html(array[i].track);
 		artist = de_html(artist)
 		track = de_html(track)
-		if ((_ar == artist) && (_tr == track)){
-			return array[i];
-		} else
-		if ((_ar.toLowerCase() == artist.toLowerCase()) && (_tr.toLowerCase() == track.toLowerCase())){
-			best = array[i];
-			worst_pr = -1;
-		} else
-		if ( (worst_pr < -2) && (_ar.replace(/The /g, '') == artist.replace(/The /g, '')) && (_tr == track)){
-			best = array[i];
-			worst_pr = -2;
-		} else
-		if ( (worst_pr < -3) && (_ar.replace(/The /g, '') == artist.replace(/The /g, '')) && (_tr.replace(/.mp3/g, '') == track)){
-			best = array[i];
-			worst_pr = -3;
-		} else
-		if ( (worst_pr < -4) && (_ar.toLowerCase() == artist.replace("The ").toLowerCase()) && (_tr.toLowerCase() == track.toLowerCase())){
-			best = array[i];
-			worst_pr = -4;
-		} else 
-		if ( (worst_pr < -5) && _ar.match(artist) && _tr.match(track)) {
-			best = array[i];
-			worst_pr = -5;
-		} else
-		if ( (worst_pr < -6) && _ar.toLowerCase().match(artist.toLowerCase()) && _tr.toLowerCase().match(track.toLowerCase())) {
-			best = array[i];
-			worst_pr = -6;
-		} 
+		var epic_fail;
+		
+		var for_first_test = artist + ' ' + track;
+		epic_fail = !for_first_test.match(new RegExp(artist, 'ig')) && !for_first_test.match(new RegExp(track, 'ig'));
+		
+		if (!epic_fail){
+			if ((_ar == artist) && (_tr == track)){
+				return array[i];
+			} else
+			if ((_ar.toLowerCase() == artist.toLowerCase()) && (_tr.toLowerCase() == track.toLowerCase())){
+				best = array[i];
+				worst_pr = -1;
+			} else
+			if ( (worst_pr < -2) && (_ar.replace(/The /g, '') == artist.replace(/The /g, '')) && (_tr == track)){
+				best = array[i];
+				worst_pr = -2;
+			} else
+			if ( (worst_pr < -3) && (_ar.replace(/The /g, '') == artist.replace(/The /g, '')) && (_tr.replace(/.mp3/g, '') == track)){
+				best = array[i];
+				worst_pr = -3;
+			} else
+			if ( (worst_pr < -4) && (_ar.toLowerCase() == artist.replace("The ").toLowerCase()) && (_tr.toLowerCase() == track.toLowerCase())){
+				best = array[i];
+				worst_pr = -4;
+			} else 
+			if ( (worst_pr < -5) && _ar.match(artist) && _tr.match(track)) {
+				best = array[i];
+				worst_pr = -5;
+			} else
+			if ( (worst_pr < -6) && _ar.toLowerCase().match(artist.toLowerCase()) && _tr.toLowerCase().match(track.toLowerCase())) {
+				best = array[i];
+				worst_pr = -6;
+			} else {
+				best = array[i];
+				worst_pr = -7;
+			}
+		}
+		
 		
 	};
 	return best;

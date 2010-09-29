@@ -36,9 +36,9 @@ var hardcore_vk_search = function(query, callback, error, nocache, after_ajax){
 					log('Квантакте говорит: \n' + r.summary);
 					var music_list = get_vk_music_list(r);
 				
-					if (music_list && callback) {
+					if (music_list) {
 						cache_ajax.set('vk_hard', query, music_list);
-						if (seesu.delayed_search.vk.quene == seesu.delayed_search.use.quene){
+						if (callback && seesu.delayed_search.vk.quene == seesu.delayed_search.use.quene){
 							callback(music_list);
 						}
 						
@@ -103,6 +103,7 @@ var get_vk_music_list = function (r) {// vk_music_list is empty array, declared 
 				vk_music_obj = parseStrToObj(playStr);
 			vk_music_obj.artist = artist;
 			vk_music_obj.track = track;
+			vk_music_obj.from = 'vk_hardcore'
 			
 			if (!has_music_copy(vk_music_list,vk_music_obj)){
 				vk_music_list.push(vk_music_obj);
