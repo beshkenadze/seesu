@@ -473,6 +473,7 @@ var make_node_playable = function(node, music_object){
 	
 	var playable_node = $(node)
 		.addClass('song js-serv')
+		.removeClass('search-mp3-failed')
 		.removeClass('waiting-full-render')
 		.data('mp3link', music_object.link)
 		.data('not_use', false)
@@ -488,14 +489,14 @@ var make_node_playable = function(node, music_object){
 	
 	
 	if (seesu.ui.allow_mp3_downloading){
-		var mp3 = $("<a></a>").text('mp3').attr({ 'class': 'download-mp3', 'href':  http_link });
+		var mp3 = $("<a></a>").text('mp3').attr({ 'class': 'download-mp3', 'href':  music_object.link });
 		mp3.insertBefore(playable_node);
 	}
 	
 	
-	if (mp3_duration) {
-		var digits = mp3_duration % 60;
-		var track_dur = (Math.round(mp3_duration/60)) + ':' + (digits < 10 ? '0'+digits : digits );
+	if (music_object.duration) {
+		var digits = music_object.duration % 60;
+		var track_dur = (Math.round(music_object.duration/60)) + ':' + (digits < 10 ? '0'+digits : digits );
 		playable_node.prepend($('<a class="song-duration"></a>').text(track_dur + ' '));
 	}
 	var playlist_length = playlist_nodes_for.length;
