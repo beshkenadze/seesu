@@ -1,7 +1,7 @@
 var results_mouse_click_for_enter_press = function(e){
 	var node_name = e.target.nodeName;
 	if ((node_name != 'A') && (node_name != 'BUTTON')){return false;}
-	var active_node = seesu.ui.search_form.data('node_for_enter_press');
+	var active_node = seesu.ui.views.current_rc.data('node_for_enter_press');
 	if (active_node) {active_node.removeClass('active');}
 	
 	set_node_for_enter_press($(e.target));
@@ -17,7 +17,7 @@ var set_node_for_enter_press = function(node, scroll_to_node, not_by_user){
 	} else{
 		seesu.ui.search_form.data('current_node_index', node.data('search_element_index'));
 	}
-	seesu.ui.search_form.data('node_for_enter_press', node.addClass('active'));
+	seesu.ui.views.current_rc.data('node_for_enter_press', node.addClass('active'));
 	
 	
 	if (scroll_to_node){
@@ -46,22 +46,23 @@ var set_node_for_enter_press = function(node, scroll_to_node, not_by_user){
 	}
 }
 seesu.ui.make_search_elements_index = function(remark_enter_press, after_user){
-	seesu.ui.search_elements = searchres.find('a:not(.nothing-found), button');
-	for (var i=0 , l = seesu.ui.search_elements.length; i < l; i++) {
-		$(seesu.ui.search_elements[i]).data('search_element_index', i).data('search_elements_length', l)
+	var search_elements = seesu.ui.views.current_rc.find('a:not(.nothing-found), button');
+	seesu.ui.views.current_rc.data('search_elements', search_elements)
+	for (var i=0 , l = search_elements.length; i < l; i++) {
+		$(search_elements[i]).data('search_element_index', i);
 	};
 	
 	
 	if (remark_enter_press) {
 		var active_index = seesu.ui.search_form.data('current_node_index') || 0;
-		log("active_index: " + active_index)
-		var new_active_node = seesu.ui.search_elements[active_index];
-		log('new_active_node: ' + new_active_node.nodeName)
+		console.log("active_index: " + active_index)
+		var new_active_node = search_elements[active_index];
+		console.log('new_active_node: ' + new_active_node.nodeName)
 		if (new_active_node) {
 			
-				var active_node = seesu.ui.search_form.data('node_for_enter_press');
+				var active_node = seesu.ui.views.current_rc.data('node_for_enter_press');
 				if (active_node) {
-					log('old node: ' + (active_node[0] && active_node[0].nodeName))
+					console.log('old node: ' + (active_node[0] && active_node[0].nodeName))
 					active_node.removeClass('active');
 				}
 				
@@ -348,7 +349,7 @@ seesu.ui.buttons = {
 				
 				
 
-				log('finishing_results: ' + finishing_results)
+				console.log('finishing_results: ' + finishing_results)
 				var query = search_input.val();
 				if (query) {
 					artist_search(query, finishing_results);
@@ -389,7 +390,7 @@ seesu.ui.buttons = {
 			.click(function(e){
 				
 				var query = search_input.val();
-				log(query)
+				console.log(query)
 				if (query) {
 					show_track(query)
 				}
@@ -546,7 +547,7 @@ var multiply_suggestion_ui = function(input_value){
 	
 	results_container.append('<h4>Artists</h4>');
 	var arts_clone = seesu.ui.buttons.search_artists.clone(true).data('finishing_results', 5);
-	log('finishing_results test: ' + arts_clone.data('finishing_results'))
+	console.log('finishing_results test: ' + arts_clone.data('finishing_results'))
 	var ul_arts = seesu.ui.arts_results_ul = $("<ul id='artist-results-ul'></ul>").attr({ 'class': 'results-artists'});
 	seesu.ui.buttons_li.search_artists = $('<li></li').append(arts_clone.find('span').text('Search «' +source_query + '» in artists').end().addClass("search-button")).appendTo(ul_arts);
 	results_container.append(ul_arts);
@@ -681,42 +682,44 @@ $(function(){
 			var _key = e.keyCode;
 			if (_key == '13'){
 				e.preventDefault();
-				var current_node = seesu.ui.search_form.data('node_for_enter_press');
+				var current_node = seesu.ui.views.current_rc.data('node_for_enter_press');
 				if (current_node) {current_node.click()}
 			} else 
 			if((_key == '40') || (_key == '63233')){
 				e.preventDefault();
-				var current_node = seesu.ui.search_form.data('node_for_enter_press');
+				var current_node = seesu.ui.views.current_rc.data('node_for_enter_press');
 				if (current_node){
+					var _elements = seesu.ui.views.current_rc.data('search_elements');
 					var el_index = current_node.data('search_element_index');
-					var els_length = current_node.data('search_elements_length');
+					var els_length = _elements.length;
 					current_node.removeClass('active')
 					
 					if (el_index < (els_length -1)){
 						var new_current = el_index+1;
-						set_node_for_enter_press($(seesu.ui.search_elements[new_current]), true)
+						set_node_for_enter_press($(_elements[new_current]), true)
 						
 					} else {
 						var new_current = 0;
-						set_node_for_enter_press($(seesu.ui.search_elements[new_current]), true)
+						set_node_for_enter_press($(_elements[new_current]), true)
 					}
 				}
 			} else 
 			if((_key == '38') || (_key == '63232')){
 				e.preventDefault();
-				var current_node = seesu.ui.search_form.data('node_for_enter_press');
+				var current_node = seesu.ui.views.current_rc.data('node_for_enter_press');
 				if (current_node){
+					var _elements = seesu.ui.views.current_rc.data('search_elements');
 					var el_index = current_node.data('search_element_index');
-					var els_length = current_node.data('search_elements_length');
+					var els_length = _elements.length;
 					current_node.removeClass('active')
 					
 					if (el_index > 0){
 						var new_current = el_index-1;
-						set_node_for_enter_press($(seesu.ui.search_elements[new_current]), true)
+						set_node_for_enter_press($(_elements[new_current]), true)
 						
 					} else {
 						var new_current = els_length-1;
-						set_node_for_enter_press($(seesu.ui.search_elements[new_current]), true)
+						set_node_for_enter_press($(_elements[new_current]), true)
 					}
 				}
 			}

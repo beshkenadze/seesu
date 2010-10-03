@@ -19,7 +19,7 @@ var hardcore_vk_search = function(query, callback, error, nocache, after_ajax){
 		return false;
 	}
 
-	seesu.delayed_search.vk.quene.add(function(){
+	return seesu.delayed_search.vk.quene.add(function(){
 		$.ajax({
 		  timeout: 10000,
 		  url: "http://vkontakte.ru/gsearch.php",
@@ -31,14 +31,15 @@ var hardcore_vk_search = function(query, callback, error, nocache, after_ajax){
 		  complete: function(xhr){
 			var text = xhr.responseText;
 			if (text.match(/^\{/) && text.match(/\}$/)){
+				
 				try {
-					var r = JSON.parse(text);
-					log('Квантакте говорит: \n' + r.summary);
+					var r = JSON.parse(text.replace(/images\\\/play\.gif/g,'').replace(/images.play\.gif/g, ''));
+					console.log('Квантакте говорит: \n' + r.summary);
 					var music_list = get_vk_music_list(r);
 				
-					if (music_list && callback) {
+					if (music_list) {
 						cache_ajax.set('vk_hard', query, music_list);
-						if (seesu.delayed_search.vk.quene == seesu.delayed_search.use.quene){
+						if (callback && seesu.delayed_search.vk.quene == seesu.delayed_search.use.quene){
 							callback(music_list);
 						}
 						
@@ -48,8 +49,9 @@ var hardcore_vk_search = function(query, callback, error, nocache, after_ajax){
 						}
 						
 					}
+					
 				} catch(e) {
-					log(e)
+					console.log(e)
 					if (seesu.delayed_search.vk.quene == seesu.delayed_search.use.quene){
 						if  (error) {error(xhr);}
 					}
@@ -66,8 +68,7 @@ var hardcore_vk_search = function(query, callback, error, nocache, after_ajax){
 		  }
 		});
 		if (after_ajax) {after_ajax();}
-	});
-	return true;
+	}, true);
 
 
 }
@@ -103,6 +104,7 @@ var get_vk_music_list = function (r) {// vk_music_list is empty array, declared 
 				vk_music_obj = parseStrToObj(playStr);
 			vk_music_obj.artist = artist;
 			vk_music_obj.track = track;
+			vk_music_obj.from = 'vk_hardcore'
 			
 			if (!has_music_copy(vk_music_list,vk_music_obj)){
 				vk_music_list.push(vk_music_obj);
