@@ -295,6 +295,32 @@ $(function(){
 
 
 // Ready? Steady? Go!
+if(!!(a.canPlayType && a.canPlayType('audio/mpeg;').replace(/no/, ''))){
+	seesu.player.workable.push('html5_audio');
+} else{
+	soundManager = new SoundManager();
+	if (soundManager){
+		soundManager.url = 'http://seesu.me/swf/';
+		soundManager.flashVersion = 9;
+		soundManager.useFlashBlock = true;
+		soundManager.debugMode = false;
+		soundManager.wmode = 'transparent';
+		soundManager.useHighPerformance = true;
+		soundManager.onready(function() {
+		  if (soundManager.supported()) {
+			console.log('sm2 in widget ok');
+			seesu.player.workable.push('sm2');
+			try_to_use_iframe_sm2p(true);
+		  } else {
+		  		console.log('sm2 in widget notok')
+		  		try_to_use_iframe_sm2p();
+	
+		  }
+		});
+	}
+}
+
+
 
 $(function() {
 	track_panel.prepend(seesu.ui.player_holder);

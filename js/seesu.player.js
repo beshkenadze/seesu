@@ -10,6 +10,7 @@ var INIT     = -11,
 
 seesu.player = {
 	autostart: true,
+	workable: [],
 	player_state 		: STOPPED,
 	player_holder 		: null,
 	current_playlist 	: null,
@@ -429,7 +430,8 @@ var try_to_use_iframe_sm2p = function(remove){
 				
 				
 			} else if (e.data.match(/sm2_inited/)){
-				console.log('iframe sm2 wrokss yearh!!!!')
+				console.log('iframe sm2 wrokss yearh!!!!');
+				seesu.player.workable.push('sm2_iframed');
 				seesu.player.musicbox = new sm2_p(seesu.ui.player_holder, seesu.player.player_volume, soundManager, i_f_sm2);
 				i_f_sm2.addClass('sm-inited');
 				$(document.body).addClass('flash-internet');
