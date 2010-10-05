@@ -4,7 +4,8 @@
   "description": "Seesu is for searching and listening music. Free last.fm player.",
   "browser_action": {
 	"default_icon": "icon.png",
-	"default_title": "Seesu"
+	"default_title": "Seesu",
+	"default_popup": "index.html"
   },
   "background_page": "browser_bg_action.html",
   "permissions": [

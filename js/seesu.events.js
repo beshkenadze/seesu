@@ -1,3 +1,22 @@
+
+
+if (typeof chrome === 'object' && chrome.extension){
+	var cbp = chrome.extension.getBackgroundPage();
+	cbp.$ =$;
+	seesu = cbp.seesu;
+	lfm_auth = cbp.lfm_auth;
+	check_seesu_updates = cbp.check_seesu_updates;
+	w_storage = cbp.w_storage;
+	try_mp3_providers = cbp.try_mp3_providers;
+	test_pressed_node = cbp.test_pressed_node;
+	lfm_scrobble = cbp.lfm_scrobble;
+	lfm = cbp.lfm;
+	input_change = cbp.input_change;
+	button_menu= cbp.button_menu;
+	html5_p = cbp.html5_p;
+}
+
+
 $(function() {
   if (seesu.cross_domain_allowed && lfm_auth.sk && !lfm_scrobble.s) {lfm_scrobble.handshake();}
   check_seesu_updates();
