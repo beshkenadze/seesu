@@ -86,8 +86,8 @@ var test_pressed_node = function(original_node, mouseup){
 		  }
 		  else if (class_name.match(/hint-query/)){
 		  	var query = clicked_node.text();
-		  	search_input.val(query);
-			input_change(search_input[0]);
+		  	su.ui.search_input.val(query);
+			input_change(su.ui.search_input[0]);
 		  	clicked_node.text(seesu.popular_artists[(Math.random()*10).toFixed(0)]);
 		  	seesu.track_event('Navigation', 'hint artist');
 		  	return false;
@@ -131,7 +131,7 @@ var test_pressed_node = function(original_node, mouseup){
 				if (seesu.vk_logged_in){
 					seesu.delayed_search.switch_to_vk()
 				}else{
-					$(document.body).addClass('vk-needs-login');
+					$([document.body, su.ui.b]).addClass('vk-needs-login');
 				}
 				
 				return false

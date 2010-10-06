@@ -2,8 +2,15 @@
 
 if (typeof chrome === 'object' && chrome.extension){
 	var cbp = chrome.extension.getBackgroundPage();
-	cbp.$ =$;
-	seesu = cbp.seesu;
+	
+	document.documentElement.className = cbp.document.documentElement.className;
+	$(function(){
+		document.body.className = cbp.document.body.className;
+	});
+	
+	su = cbp.su;
+	su.ui.b = document.body;
+	su.$ = $;
 	lfm_auth = cbp.lfm_auth;
 	check_seesu_updates = cbp.check_seesu_updates;
 	w_storage = cbp.w_storage;
@@ -14,64 +21,154 @@ if (typeof chrome === 'object' && chrome.extension){
 	input_change = cbp.input_change;
 	button_menu= cbp.button_menu;
 	html5_p = cbp.html5_p;
+
+	set_node_for_enter_press = cbp.set_node_for_enter_press;
+	addEvent = cbp.addEvent;
+	addEvent(window, 'beforeunload', function(){
+		su.ui.b = false;
+		su.ui.views.browsing.search_results = false;
+		su.ui.views.browsing.playlist = false;
+	})
+}
+
+su.player.controls = (function(volume){
+	var o = {};
+	var get_click_position = function(e, node){
+		var pos = e.offsetX || (e.pageX - $(node).offset().left);
+		return pos
+	}
+	o.track_progress_total = $('<div class="track-progress"></div>').click(function(e){
+		e.stopPropagation();
+		var pos = get_click_position(e, this);
+		var new_play_position_factor = pos/o.track_progress_width;
+		su.player.musicbox.set_new_position(new_play_position_factor);
+		
+	})//.prependTo(player_holder);
+	
+	o.track_progress_load = $('<div class="track-load-progress"></div>').appendTo(o.track_progress_total);
+	o.track_progress_play = $('<div class="track-play-progress"></div>').appendTo(o.track_progress_total);
+	o.track_node_text = $('<div class="track-node-text"><div>').appendTo(o.track_progress_total);
+	
+	
+	o.volume_state = $('<div class="volume-state"></div>').click(function(e){
+		var pos = get_click_position(e, this);
+		var new_volume_factor = pos/50;
+		su.player.musicbox.changhe_volume(new_volume_factor * 100);
+		su.player.call_event(VOLUME, new_volume_factor * 100);
+		
+		o.volume_state_position.css('width', pos + 'px')
+	})//.prependTo(player_holder);
+	o.volume_state_position = $('<div class="volume-state-position"></div>')
+		.css('width',((volume * 50)/100) + 'px')
+		.appendTo(o.volume_state);
+	return o;
+})(su.player.player_volume);
+su.ui.player_holder = $('<div class="player-holder"></div>')
+	.prepend(su.player.controls.track_progress_total)
+	.prepend(su.player.controls.volume_state);
+
+su.ui.buttons = {
+	search_artists : 
+		$('<button type="submit" name="type" value="artist" id="search-artist"><span>Search in artists</span></button>')
+			.click(function(e){
+				var finishing_results = su.$(this).data('finishing_results');
+				su.$(this).parent().remove();
+				var query = su.ui.search_input.val();
+				if (query) {
+					artist_search(query, finishing_results);
+				}
+				su.ui.make_search_elements_index()
+			}),
+		
+	search_tags:  
+		$('<button type="submit" name="type" value="tag" id="search-tag"><span>Search in tags</span></button>')
+			.click(function(e){
+				var finishing_results = su.$(this).data('finishing_results');
+				su.$(this).parent().remove();
+				
+				
+				var query = su.ui.search_input.val();
+				if (query) {
+					tag_search(query, finishing_results)
+				}
+				su.ui.make_search_elements_index()
+			}),
+	search_tracks: 
+		$('<button type="submit" name="type" value="track" id="search-track"><span>Search in tracks</span></button>')
+			.click(function(e){
+				var finishing_results = su.$(this).data('finishing_results');
+				su.$(this).parent().remove();
+				
+				
+				
+				
+				var query = su.ui.search_input.val();
+				if (query) {
+					track_search(query, finishing_results)
+				}
+				su.ui.make_search_elements_index()
+			}),
+	search_vkontakte: 
+		$('<button type="submit" name="type" value="vk_track" id="search-vk-track" class="search-button"><span>Use dirty search</span></button>')
+			.click(function(e){
+				
+				var query = su.ui.search_input.val();
+				if (query) {
+					show_track(query)
+				}
+				
+			})
+	
 }
 
 
 $(function() {
-  if (seesu.cross_domain_allowed && lfm_auth.sk && !lfm_scrobble.s) {lfm_scrobble.handshake();}
-  check_seesu_updates();
-  seesu.vk_id = w_storage('vkid');
-  $(document).click(function(e) {
-	return test_pressed_node(e.target)
-  });
-  seesu.ui.scrolling_viewport = $('#screens');
-  try_mp3_providers();
+	$(document).click(function(e) {
+		return test_pressed_node(e.target)
+	});
+	su.ui.scrolling_viewport = $('#screens');
 	flash_secur = $('#flash-secur');
 
-	$('#hint-query').text(seesu.popular_artists[(Math.random()*10).toFixed(0)])
+	$('#hint-query').text(su.popular_artists[(Math.random()*10).toFixed(0)])
 	var wgt_urli = $('#widget-url').val(location.href.replace('index.html', ''));
 	window.seesu_me_link = $('#seesu-me-link');
-	seesu_me_link.attr('href', seesu_me_link.attr('href').replace('seesu%2Bapplication', seesu.env.app_type))
+	seesu_me_link.attr('href', seesu_me_link.attr('href').replace('seesu%2Bapplication', su.env.app_type))
 
   
   
 	//see var at top
-	window.slider = document.getElementById('slider');
-	window.startlink = document.getElementById('start_search');
+	window.slider = su.ui.slider = document.getElementById('slider');
+	window.startlink = su.ui.startlink = document.getElementById('start_search');
 	startlink.onclick = function(){
 		
-		seesu.ui.views.show_start_page(true, true);
+		su.ui.views.show_start_page(true, true);
 	};
 	
-	window.nav_playlist_page = document.getElementById('nav_playlist_page');
+	window.nav_playlist_page = su.ui.nav_playlist_page = document.getElementById('nav_playlist_page');
 	$(nav_playlist_page).parent().click(function(){
 		var current_page = slider.className;
 		$(slider).removeClass('show-zoom-to-track');
-		seesu.track_event('Navigation', 'playlist', current_page);
+		su.track_event('Navigation', 'playlist', current_page);
 	})
-	window.nav_track_zoom = $('#nav_track_zoom');
-	window.trk_page_nav = document.getElementById('nav_tracks_page');
+	window.nav_track_zoom = su.ui.nav_track_zoom = $('#nav_track_zoom');
+	window.trk_page_nav = su.ui.trk_page_nav = document.getElementById('nav_tracks_page');
 	
-	window.search_nav = $('#search_result_nav').click(function(){
-		seesu.ui.views.show_search_results_page(true, true);
+	window.search_nav = su.ui.search_nav =  $('#search_result_nav').click(function(){
+		su.ui.views.show_search_results_page(true, true);
 	});
-	window.export_playlist = $('#open-external-playlist');
-	seesu.start_screen = $('#start-screen');
+	window.export_playlist = su.ui.export_playlist = $('#open-external-playlist');
+	su.start_screen = $('#start-screen');
 	
-	window.artsHolder	= $('#artist-holder');
-	window.a_info		= $('.artist-info', artsHolder)
-	window.artsName		= $('.artist-name',  a_info);
-	window.artsImage	= $('img.artist-image',a_info);
-	window.artsBio		= $('.artist-bio',a_info);
-	window.arst_meta_info = $('.artist-meta-info', a_info);
+	window.artsHolder	=  su.ui.artsHolder = $('#artist-holder');
+	window.a_info		=  su.ui.a_info = $('.artist-info', artsHolder);
 	
-	window.artsTracks	= $('.tracks-for-play',artsHolder);
-	window.art_tracks_w_counter = $('#tracks-waiting-for-search');
+	window.artsTracks	= 	su.ui.artsTracks = $('.tracks-for-play',artsHolder);
+	window.art_tracks_w_counter = su.ui.art_tracks_w_counter= $('#tracks-waiting-for-search');
 	
-	window.track_panel = $('#track-panel');
+	window.track_panel = su.ui.track_panel = $('#track-panel');
 	
 	
-	window.vk_save_pass = $('#vk-save-pass');
+	window.vk_save_pass = su.ui.vk_save_pass = $('#vk-save-pass');
 	
 	  
   	if ($.browser.opera && ((typeof opera.version == 'function') && (parseFloat(opera.version()) <= 10.1)) ){
@@ -80,7 +177,7 @@ $(function() {
 			.click(function(){
 				window.close();
 			})
-			.prependTo(slider)
+			.prependTo(su.ui.slider)
 	}
   
 	
@@ -104,10 +201,10 @@ $(function() {
 			pass = $('input.vk-pass',_this).val();
 		if (vk_save_pass.attr('checked')){
 			w_storage('vk_save_pass', 'true', true);
-			seesu.vk.save_pass = true;
+			su.vk.save_pass = true;
 		} else{
 			w_storage('vk_save_pass', '', true);
-			seesu.vk.save_pass = false;
+			su.vk.save_pass = false;
 		}
 		vk_send_captcha($('#vk-captcha_key',_this).val(),email,pass);
 
@@ -127,20 +224,13 @@ $(function() {
 	if (lfm_auth.sk) {
 		lfm_auth.ui_logged();	
 	}
-	var get_lfm_token = function(lfm_auth,callback){
-		lfm('auth.getToken',false,function(r){
-			lfm_auth.newtoken = r.token;
-			if (callback) {callback(lfm_auth.newtoken);}
-		})
-	}
+	
 	open_lfm_to_login = function(token){
 		widget.openURL('http://www.last.fm/api/auth/?api_key=' + apikey + '&token=' + token);
 		$(document.body).addClass('lfm-waiting-for-finish');
 	};
 	
-	if (!lfm_auth.sk) {
-		get_lfm_token(lfm_auth);
-	}
+	
 
 	
 	var lfm_fin_recomm_check = $('#login-lastfm-finish-recomm-check'),
@@ -217,31 +307,31 @@ $(function() {
 
 
 
-	window.searchres = $('#search_result');
-	window.search_input = $('#q')
+	su.ui.searchres = $('#search_result');
+	var search_input = su.ui.search_input = $('#q')
 		.keyup(input_change)
 		.mousemove(input_change)
 		.change(input_change);
 	if (document.activeElement.nodeName != 'INPUT') {
 		search_input[0].focus();
 	}
-	seesu.ui.search_form = $('#search').submit(function(){return false;});
-	$('#app_type', seesu.ui.search_form).val(seesu.env.app_type);
-	if (seesu.ui.search_form) {
+	su.ui.search_form = $('#search').submit(function(){return false;});
+	$('#app_type', su.ui.search_form).val(su.env.app_type);
+	if (su.ui.search_form) {
 		$(document).keydown(function(e){
 			if (!slider.className.match(/show-search-results/)) {return}
 			if (document.activeElement.nodeName == 'BUTTON'){return}
 			var _key = e.keyCode;
 			if (_key == '13'){
 				e.preventDefault();
-				var current_node = seesu.ui.views.current_rc.data('node_for_enter_press');
+				var current_node = su.ui.views.current_rc.data('node_for_enter_press');
 				if (current_node) {current_node.click()}
 			} else 
 			if((_key == '40') || (_key == '63233')){
 				e.preventDefault();
-				var current_node = seesu.ui.views.current_rc.data('node_for_enter_press');
+				var current_node = su.ui.views.current_rc.data('node_for_enter_press');
 				if (current_node){
-					var _elements = seesu.ui.views.current_rc.data('search_elements');
+					var _elements = su.ui.views.current_rc.data('search_elements');
 					var el_index = current_node.data('search_element_index');
 					var els_length = _elements.length;
 					current_node.removeClass('active')
@@ -258,9 +348,9 @@ $(function() {
 			} else 
 			if((_key == '38') || (_key == '63232')){
 				e.preventDefault();
-				var current_node = seesu.ui.views.current_rc.data('node_for_enter_press');
+				var current_node = su.ui.views.current_rc.data('node_for_enter_press');
 				if (current_node){
-					var _elements = seesu.ui.views.current_rc.data('search_elements');
+					var _elements = su.ui.views.current_rc.data('search_elements');
 					var el_index = current_node.data('search_element_index');
 					var els_length = _elements.length;
 					current_node.removeClass('active')
@@ -287,18 +377,16 @@ $(function() {
 $(function(){
 	var buttmen_node =  $('.buttmen');
 	if (buttmen_node){
-		seesu.buttmen = new button_menu(buttmen_node)
+		su.buttmen = new button_menu(buttmen_node)
 	}
 	
-	seesu.player.play_controls = seesu.buttmen;
+	su.player.play_controls = su.buttmen;
 })
 
 
 $(function() {
-	seesu.ui.player_holder = $('<div class="player-holder"></div>')
-		.prepend(seesu.player.controls.track_progress_total)
-		.prepend(seesu.player.controls.volume_state);
-	track_panel.prepend(seesu.ui.player_holder);
+
+	track_panel.prepend(su.ui.player_holder);
 });
 
 
