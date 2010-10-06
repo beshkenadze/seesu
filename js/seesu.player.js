@@ -10,7 +10,6 @@ var INIT     = -11,
 
 seesu.player = {
 	autostart: true,
-	workable: [],
 	player_volume 	: ( function(){
 		var volume_preference = w_storage('vkplayer-volume');
 		if (volume_preference && (volume_preference != 'undefined') && volume_preference != 'NaN'){
