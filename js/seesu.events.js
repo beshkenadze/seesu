@@ -1,5 +1,3 @@
-
-
 if (typeof chrome === 'object' && chrome.extension){
 	var cbp = chrome.extension.getBackgroundPage();
 	
@@ -120,13 +118,22 @@ su.ui.buttons = {
 			})
 	
 }
-
+if (su.env.touch_support){$(document.documentElement).addClass('touch-screen');}
+if (su.env.as_application){
+	$(document.documentElement).addClass('as-application');
+} else{
+	$(document.documentElement).addClass('not-as-application');
+}
+if (!su.env.unknown_app_type){$(document.documentElement).addClass(su.env.app_type.replace('_','-'));}
+if (su.cross_domain_allowed) {$(document.documentElement).addClass('cross-domain-allowed')}
 
 $(function() {
+
+
 	$(document).click(function(e) {
 		return test_pressed_node(e.target)
 	});
-	su.ui.scrolling_viewport = $('#screens');
+	seesu.ui.scrolling_viewport = $('#screens');
 	flash_secur = $('#flash-secur');
 
 	$('#hint-query').text(su.popular_artists[(Math.random()*10).toFixed(0)])
@@ -159,8 +166,10 @@ $(function() {
 	window.export_playlist = su.ui.export_playlist = $('#open-external-playlist');
 	su.start_screen = $('#start-screen');
 	
+
 	window.artsHolder	=  su.ui.artsHolder = $('#artist-holder');
 	window.a_info		=  su.ui.a_info = $('.artist-info', artsHolder);
+
 	
 	window.artsTracks	= 	su.ui.artsTracks = $('.tracks-for-play',artsHolder);
 	window.art_tracks_w_counter = su.ui.art_tracks_w_counter= $('#tracks-waiting-for-search');
@@ -302,7 +311,6 @@ $(function() {
 		$(document.body).removeClass('lfm-auth-req-recomm');
 		return false;
 	})
-	play_controls = $('.play-controls');
 
 
 
@@ -375,12 +383,14 @@ $(function() {
 });
 
 $(function(){
-	var buttmen_node =  $('.buttmen');
+	var buttmen_node =  $('.play-controls.buttmen');
 	if (buttmen_node){
 		su.buttmen = new button_menu(buttmen_node)
 	}
 	
+
 	su.player.play_controls = su.buttmen;
+
 })
 
 

@@ -7,12 +7,13 @@
 	right:115px;
 	margin-top:5px;
 	top:0;
+	
+	z-index:7;
 }
 
 
 .play-controls{
 	display:none;
-	z-index:7;
 	
 }
 
@@ -26,10 +27,10 @@
 		background-repeat:no-repeat;
 		}
 		.play-control:hover{
-			background-image:url(../i/buttons_hover.png);
+			background-image:url(../i/buttons_hover.png)  !important;
 			}
 		.play-control:active{
-			background-image:url(../i/buttons_active.png);
+			background-image:url(../i/buttons_active.png) !important;
 			}
 .player-paused .play-control.pause,
 .player-stopped .play-control.stop,
@@ -250,19 +251,5 @@ p.internet-flash-settings{
 .track-node-text{
 	position:relative;
 	z-index:2;
-	display:block;
-}
-
-
-	
-
-.player-paused .play-controls,
-.player-stopped .play-controls,
-.player-played .play-controls{
-	display:block;
-}
-.player-paused .track-buttons,
-.player-stopped .track-buttons,
-.player-played .track-buttons{
 	display:block;
 }
