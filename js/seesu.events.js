@@ -1,35 +1,5 @@
-if (typeof chrome === 'object' && chrome.extension){
-	var cbp = chrome.extension.getBackgroundPage();
-	
-	document.documentElement.className = cbp.document.documentElement.className;
-	$(function(){
-		document.body.className = cbp.document.body.className;
-	});
-	
-	su = cbp.su;
-	su.ui.b = document.body;
-	su.$ = $;
-	lfm_auth = cbp.lfm_auth;
-	check_seesu_updates = cbp.check_seesu_updates;
-	w_storage = cbp.w_storage;
-	try_mp3_providers = cbp.try_mp3_providers;
-	test_pressed_node = cbp.test_pressed_node;
-	lfm_scrobble = cbp.lfm_scrobble;
-	lfm = cbp.lfm;
-	input_change = cbp.input_change;
-	button_menu= cbp.button_menu;
-	html5_p = cbp.html5_p;
-
-	set_node_for_enter_press = cbp.set_node_for_enter_press;
-	addEvent = cbp.addEvent;
-	addEvent(window, 'beforeunload', function(){
-		su.ui.b = false;
-		su.ui.views.browsing.search_results = false;
-		su.ui.views.browsing.playlist = false;
-	})
-}
-
-su.player.controls = (function(volume){
+$(function(){
+	su.player.controls = (function(volume){
 	var o = {};
 	var get_click_position = function(e, node){
 		var pos = e.offsetX || (e.pageX - $(node).offset().left);
@@ -65,7 +35,7 @@ su.ui.player_holder = $('<div class="player-holder"></div>')
 	.prepend(su.player.controls.track_progress_total)
 	.prepend(su.player.controls.volume_state);
 
-su.ui.buttons = {
+buttons = {
 	search_artists : 
 		$('<button type="submit" name="type" value="artist" id="search-artist"><span>Search in artists</span></button>')
 			.click(function(e){
@@ -118,6 +88,8 @@ su.ui.buttons = {
 			})
 	
 }
+})
+
 if (su.env.touch_support){$(document.documentElement).addClass('touch-screen');}
 if (su.env.as_application){
 	$(document.documentElement).addClass('as-application');
@@ -133,7 +105,7 @@ $(function() {
 	$(document).click(function(e) {
 		return test_pressed_node(e.target)
 	});
-	seesu.ui.scrolling_viewport = $('#screens');
+	su.ui.scrolling_viewport = $('#screens');
 	flash_secur = $('#flash-secur');
 
 	$('#hint-query').text(su.popular_artists[(Math.random()*10).toFixed(0)])

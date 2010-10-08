@@ -16,8 +16,41 @@
 	<meta name="description" content="Seesu is amazing web application for searching and listening music. Hot last.fm acceleration"  >
 	<meta name="apple-mobile-web-app-capable" content="yes">
 	<meta name="viewport"  content="minimum-scale=1.0, width=device-width, maximum-scale=0.6667, user-scalable=no" />
-
-	<script type="text/javascript" src="js/jquery-1.4.2.js"></script>
+	
+	<script type="text/javascript" src="js/jquery-1.4.2.min.js"></script>
+	<script type="text/javascript">
+		if (typeof chrome === 'object' && chrome.extension){
+			var cbp = chrome.extension.getBackgroundPage();
+			
+			document.documentElement.className = cbp.document.documentElement.className;
+			$(function(){
+				document.body.className = cbp.document.body.className;
+			});
+			$.debounce = cbp.$.debounce;
+			hex_md5 = cbp.hex_md5;
+			su = cbp.su;
+			cache_ajax = cbp.cache_ajax;
+			su.ui.b = document.body;
+			su.$ = $;
+			lfm_auth = cbp.lfm_auth;
+			check_seesu_updates = cbp.check_seesu_updates;
+			w_storage = cbp.w_storage;
+			try_mp3_providers = cbp.try_mp3_providers;
+			test_pressed_node = cbp.test_pressed_node;
+			lfm_scrobble = cbp.lfm_scrobble;
+			lfm = cbp.lfm;
+			button_menu= cbp.button_menu;
+			html5_p = cbp.html5_p;
+			addEvent = cbp.addEvent;
+			addEvent(window, 'beforeunload', function(){
+				su.ui.b = false;
+				su.ui.views.browsing.search_results = false;
+				su.ui.views.browsing.playlist = false;
+			})
+		}
+	</script>
+	<script type="text/javascript" src="js/seesu.search.js"></script>
+	
 	
 	
 	<script type="text/javascript" src="js/seesu.events.js"></script>
