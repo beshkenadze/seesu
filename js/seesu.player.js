@@ -7,7 +7,91 @@ var INIT     = -11,
 	  PAUSED   =  7,
 	  FINISHED =  11;
 
-
+seesu.gena = { //this work with playlists
+	user_playlist: (function(){
+		var p = [];
+		p.push = function(mo){
+			Array.prototype.push.call(this, mo);
+			if (!this.link && p.length > 0 && seesu.start_screen){
+				$('<p></p>').attr('id', 'cus-playlist-b').append(
+					this.link = $('<a></a>').text('Custom playlist').attr('class', 'js-serv').click(function(){
+						if (seesu.player.c_song.mo_titl.plst_titl == p){
+							seesu.ui.views.restore_view();
+						} else{
+							seesu.ui.views.show_playlist_page('Custom playlist', 'cplaylist');
+							render_playlist(p)
+						}
+						return false;
+					}) 
+				).appendTo(seesu.start_screen);
+			}
+			
+		}
+		return p;
+		})(),
+	create_playlist_element : function(mo_titl){
+		var track = $("<a></a>")
+			.data('mo_titl', mo_titl)
+			.data('artist_name', mo_titl.artist)
+			.addClass('track-node waiting-full-render')
+			.click(empty_song_click),
+			li = document.createElement('li');
+			
+		
+		mo_titl.node = track;
+		
+		if (!!mo_titl.track){
+			track.text(mo_titl.artist + ' - ' + mo_titl.track);
+		} else{
+			track.text(mo_titl.artist);
+		}
+		if (mo_titl.link) {
+			make_node_playable(mo_titl, mo_titl);
+		} 
+		return $(li)
+			.data('mo_titl', mo_titl)
+			.append(play_controls.node.clone(true))
+			.append(track);
+	},clear: function(mo_titl, full){
+		delete mo_titl.fetch_started;
+		delete mo_titl.not_use;
+		delete mo_titl.node;
+		delete mo_titl.ready_for_play;
+		if (full){
+			delete mo_titl.delayed_in;
+			delete mo_titl.plst_pla;
+			delete mo_titl.plst_titl;
+		}
+		
+		return mo_titl;
+	},
+	connect:function(mo_titl, pl, i){
+		this.clear(mo_titl);
+		mo_titl.delayed_in = [];
+		mo_titl.play_order = i;
+		mo_titl.plst_pla = pl.plst_pla;
+		mo_titl.plst_titl = pl;
+		return mo_titl
+	},
+	add: function(mo_titl, pl){
+		var n_mo = this.soft_clone(mo_titl);
+		pl.push(this.connect(n_mo, pl, pl.length));
+		if (seesu.player.c_song.mo_titl.plst_titl == pl){
+			pl.ui.append(this.create_playlist_element(n_mo));
+			make_tracklist_playable(pl);
+		}
+		
+	},
+	soft_clone: function(obj){
+		var _n = {};
+		for (var a in obj) {
+			if (typeof obj[a] != 'object'){
+				_n[a] = obj[a];
+			}
+		};
+		return _n;
+	}
+}
 
 seesu.player = {
 	autostart: true,
@@ -269,8 +353,19 @@ seesu.player.events[FINISHED] = function() {
 seesu.player.events[VOLUME] = function(volume_value) {
 	change_volume(volume_value);
 };
+seesu.player.events.before_finish = function(total, progress_value){
+	if (!seesu.player.c_song.before_finish_fired){
+		if (total - progress_value < 20){
+			console.log('Before finish. Total: ' + total + ' Progress_value: ' + progress_value);
+			if (seesu.player.current_next_song && !seesu.player.current_next_song.ready_for_play){
+				get_next_track_with_priority(seesu.player.current_next_song);
+				
+			}
+			seesu.player.c_song.before_finish_fired = true;
+		}
+	}
+}
 seesu.player.events.progress_playing = function(progress_value, total){
-
 	//if (_this.ignore_position_change) {return false;}
 	var progress = parseInt(progress_value);
 	var total = parseInt(total);
@@ -278,14 +373,9 @@ seesu.player.events.progress_playing = function(progress_value, total){
 	var current = Math.round((progress/total) * seesu.player.controls.track_progress_width);
 	
 	seesu.player.controls.track_progress_play[0].style.width = current + 'px';
+	seesu.player.events.before_finish(progress_value, total);
 }
-seesu.player.events.before_finish = function(){
-	console.log('before finish')
-	if (seesu.player.current_next_song && !seesu.player.current_next_song.link){
-		get_track(seesu.player.current_next_song, false, true);
-		
-	}
-}
+
 seesu.player.events.progress_loading=function(progress_value, total){
 	//if (_this.ignore_position_change) {return false;}
 	var progress = parseInt(progress_value);
@@ -294,16 +384,7 @@ seesu.player.events.progress_loading=function(progress_value, total){
 	var current = Math.round((progress/total) * seesu.player.controls.track_progress_width);
 	
 	seesu.player.controls.track_progress_load[0].style.width = current + 'px';
-
-	if (!seesu.player.c_song.before_finish_fired){
-		if (total - progress_value < 20){
-			
-			console.log('total: ' + total);
-			console.log('progress_value: ' + progress_value);
-			seesu.player.events.before_finish();
-			seesu.player.c_song.before_finish_fired = true;
-		}
-	}
+	seesu.player.events.before_finish(progress, total);
 }
 	
 

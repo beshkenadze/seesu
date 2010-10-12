@@ -111,10 +111,14 @@ $(function() {
 	$('#hint-query').text(su.popular_artists[(Math.random()*10).toFixed(0)])
 	var wgt_urli = $('#widget-url').val(location.href.replace('index.html', ''));
 	window.seesu_me_link = $('#seesu-me-link');
-	seesu_me_link.attr('href', seesu_me_link.attr('href').replace('seesu%2Bapplication', su.env.app_type))
-
-  
-  
+	seesu_me_link.attr('href', seesu_me_link.attr('href').replace('seesu%2Bapplication', seesu.env.app_type))
+	
+	
+	window.make_trs = $("#make-trs-plable").click(function(){
+		
+		make_tracklist_playable(make_trs.hide().data('pl'), true);
+		seesu.track_event('Controls', 'make playable all tracks in playlist'); 
+	});
 	//see var at top
 	window.slider = su.ui.slider = document.getElementById('slider');
 	window.startlink = su.ui.startlink = document.getElementById('start_search');
