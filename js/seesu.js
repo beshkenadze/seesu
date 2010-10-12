@@ -70,6 +70,11 @@ window.seesu = window.su =  {
 	  ui: {
 		b: false,
 		views: {
+			reset: function(){
+				this.browsing = {};
+				this.playing = false;
+				this.current_rc = false;
+			},
 			browsing:{},
 			playing:false,
 			current_rc: false,
