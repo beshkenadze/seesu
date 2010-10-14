@@ -52,15 +52,24 @@ seesu.gena = { //this work with playlists
 			.data('mo_titl', mo_titl)
 			.append(play_controls.node.clone(true))
 			.append(track);
+	},clear: function(mo_titl, full){
+		delete mo_titl.fetch_started;
+		delete mo_titl.not_use;
+		delete mo_titl.node;
+		delete mo_titl.ready_for_play;
+		if (full){
+			delete mo_titl.delayed_in;
+			delete mo_titl.plst_pla;
+			delete mo_titl.plst_titl;
+		}
+		
+		return mo_titl;
 	},
 	connect:function(mo_titl, pl, i){
+		this.clear(mo_titl);
 		mo_titl.delayed_in = [];
 		mo_titl.play_order = i;
-		mo_titl.fetch_started = false;
-		mo_titl.not_use = false;
-		mo_titl.node = false;
-		mo_titl.ready_for_play = false;
-		mo_titl.plst_pla = pl.plst_pla || (pl.plst_pla = []);
+		mo_titl.plst_pla = pl.plst_pla;
 		mo_titl.plst_titl = pl;
 		return mo_titl
 	},
@@ -285,7 +294,9 @@ seesu.player = {
 		nav_track_zoom.text(( $(nav_playlist_page).text() == artist ? '' : (artist + ' - ' )) + mo.mo_titl.track);
 		if (seesu.now_playing.link){
 			seesu.now_playing.link.siblings('span').remove();
-			seesu.now_playing.link.after($('<span></span>').text(": " + artist + " - " + mo.mo_titl.track));
+			seesu.now_playing.link.after($('<span></span>').text(": " + 
+				( document.title = artist + " - " + mo.mo_titl.track)
+			));
 		}
 		
 		
@@ -375,8 +386,19 @@ seesu.player.events[FINISHED] = function() {
 seesu.player.events[VOLUME] = function(volume_value) {
 	change_volume(volume_value);
 };
+seesu.player.events.before_finish = function(total, progress_value){
+	if (!seesu.player.c_song.before_finish_fired){
+		if (total - progress_value < 20){
+			console.log('Before finish. Total: ' + total + ' Progress_value: ' + progress_value);
+			if (seesu.player.current_next_song && !seesu.player.current_next_song.ready_for_play){
+				get_next_track_with_priority(seesu.player.current_next_song);
+				
+			}
+			seesu.player.c_song.before_finish_fired = true;
+		}
+	}
+}
 seesu.player.events.progress_playing = function(progress_value, total){
-
 	//if (_this.ignore_position_change) {return false;}
 	var progress = parseInt(progress_value);
 	var total = parseInt(total);
@@ -384,14 +406,9 @@ seesu.player.events.progress_playing = function(progress_value, total){
 	var current = Math.round((progress/total) * seesu.player.controls.track_progress_width);
 	
 	seesu.player.controls.track_progress_play[0].style.width = current + 'px';
+	seesu.player.events.before_finish(progress_value, total);
 }
-seesu.player.events.before_finish = function(){
-	console.log('before finish')
-	if (seesu.player.current_next_song && !seesu.player.current_next_song.ready_for_play){
-		get_next_track_with_priority(seesu.player.current_next_song);
-		
-	}
-}
+
 seesu.player.events.progress_loading=function(progress_value, total){
 	//if (_this.ignore_position_change) {return false;}
 	var progress = parseInt(progress_value);
@@ -400,16 +417,7 @@ seesu.player.events.progress_loading=function(progress_value, total){
 	var current = Math.round((progress/total) * seesu.player.controls.track_progress_width);
 	
 	seesu.player.controls.track_progress_load[0].style.width = current + 'px';
-
-	if (!seesu.player.c_song.before_finish_fired){
-		if (total - progress_value < 20){
-			
-			console.log('total: ' + total);
-			console.log('progress_value: ' + progress_value);
-			seesu.player.events.before_finish();
-			seesu.player.c_song.before_finish_fired = true;
-		}
-	}
+	seesu.player.events.before_finish(progress, total);
 }
 	
 
