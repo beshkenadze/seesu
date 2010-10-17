@@ -144,7 +144,7 @@ var test_pressed_node = function(original_node, mouseup){
 			}
 		}
 	
-		if ((node.nodeName == 'IMG') && class_name.match(/pl-control/)){
+		if ((node.nodeName == 'IMG') && (mouseup || class_name.match(/simple-clicks/) && class_name.match(/pl-control/) )){
 			var class_name = node.parentNode.className;
 			if (class_name.match(/pause/)){
 				seesu.player.set_state('pause');
@@ -173,13 +173,19 @@ var test_pressed_node = function(original_node, mouseup){
 				return false; 
 			}
 			else if (class_name.match(/play_prev/)){
-				if(seesu.player.current_song) {seesu.player.switch_to('prev');}
+				if(seesu.player.c_song) {seesu.player.switch_to('prev');}
 				seesu.track_event('Controls', 'prev', mouseup ? 'mouseup' : '');
 				return false;
 			}
 			else if (class_name.match(/play_next/)){
-				if(seesu.player.current_song) {seesu.player.switch_to('next');}
+				if(seesu.player.c_song) {seesu.player.switch_to('next');}
 				seesu.track_event('Controls', 'next', mouseup ? 'mouseup' : '');
+				return false;
+			} else if (class_name.match(/add-to-playlist/)){
+				if(seesu.player.c_song) {
+					seesu.gena.add(seesu.player.c_song.mo_titl, seesu.gena.user_playlist)
+				}
+				seesu.track_event('Controls', 'add to playlist', mouseup ? 'mouseup' : '');
 				return false;
 			}
 		  
