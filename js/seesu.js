@@ -9,7 +9,7 @@ window.lfm = function(){
 window.seesu = window.su =  {
 	  lfm_quene: new funcs_quene(100),
 	  cross_domain_allowed: !location.protocol.match(/http/),
-	  version: 1.97,
+	  version: 1.98,
 	  env: app_env,
 	  track_stat: (function(){
 		var _i = document.createElement('iframe');_i.id ='gstat';_i.src = 'http://seesu.me/g_stat.html';
@@ -25,8 +25,15 @@ window.seesu = window.su =  {
 					ga_ready = true;
 					removeEvent(window, "message", ga_ready_waiter);
 					
-					seesu.track_stat('_setCustomVar', 1, 'environmental', (!app_env.unknown_app ? app_env.app_type : 'unknown_app'));
-					seesu.track_stat('_setCustomVar', 2, 'version', seesu.version);
+					
+					
+					seesu.track_stat('_setCustomVar', 1, 'environmental', (!app_env.unknown_app ? app_env.app_type : 'unknown_app'), 1);
+					seesu.track_stat('_setCustomVar', 2, 'version', seesu.version, 1);
+					seesu.track_stat('_trackEvent', 'environmental', 'version', seesu.version);
+					seesu.track_stat('_trackEvent', 'environmental', 'type', (!app_env.unknown_app ? app_env.app_type : 'unknown_app'));
+					
+					seesu.track_stat('_trackPageview', 'start page');
+					
 				}
 			} else {
 				return false;
@@ -270,7 +277,6 @@ window.seesu = window.su =  {
 			delay_big: 8000,
 			big_delay_interval: 7,
 			search_tracks : function(){
-				seesu.track_event('mp3 search', 'vk api with auth');
 				return seesu.vk_api.audio_search.apply(seesu.vk_api, arguments);
 			}
 		},
