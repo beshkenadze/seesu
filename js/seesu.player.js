@@ -294,9 +294,7 @@ seesu.player = {
 		nav_track_zoom.text(( $(nav_playlist_page).text() == artist ? '' : (artist + ' - ' )) + mo.mo_titl.track);
 		if (seesu.now_playing.link){
 			seesu.now_playing.link.siblings('span').remove();
-			seesu.now_playing.link.after($('<span></span>').text(": " + 
-				( document.title = artist + " - " + mo.mo_titl.track)
-			));
+			seesu.now_playing.link.after($('<span></span>').text(": " + artist + " - " + mo.mo_titl.track));
 		}
 		
 		
@@ -435,9 +433,8 @@ seesu.player.song_click = function(mo) {
   } else{
   	seesu.track_event('Song click', 'simple click');
   }
-  if (!zoomed){
-  	seesu.track_page('track zoom');
-  }
+  
+	  	
   
 	  	
   seesu.player.play_song(mo, !zoomed);
@@ -608,7 +605,13 @@ var try_to_use_iframe_sm2p = function(remove){
 	
 }
 var a = document.createElement('audio');
-if(!!(a.canPlayType && a.canPlayType('audio/mpeg;').replace(/no/, ''))){
+
+if (a.canPlayType) 
+	var canPlayMp3 = !!a.canPlayType && "" != a.canPlayType('audio/mpeg');
+else
+	var canPlayMp3 = false;
+
+if(canPlayMp3){
 	seesu.player.musicbox = new html5_p(seesu.player.player_volume);
 	$(function(){
 		$(document.body).addClass('flash-internet');
