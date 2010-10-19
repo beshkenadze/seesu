@@ -607,9 +607,11 @@ var try_to_use_iframe_sm2p = function(remove){
 var a = document.createElement('audio');
 
 if (a.canPlayType) 
-	var canPlayMp3 = !!a.canPlayType && "" != a.canPlayType('audio/mpeg');
+	var canPlayMp3 = !!a.canPlayType && "" != a.canPlayType('audio/mpeg').replace(/no/,'');
 else
 	var canPlayMp3 = false;
+
+console.log(canPlayMp3);
 
 if(canPlayMp3){
 	seesu.player.musicbox = new html5_p(seesu.player.player_volume);
